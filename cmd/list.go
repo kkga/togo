@@ -10,10 +10,11 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Lists all tasks",
+	Use:     "list",
+	Short:   "Lists all tasks",
+	Aliases: []string{"ls"},
 	Run: func(cmd *cobra.Command, args []string) {
-		tasks, err := txt.AllTasks()
+		tasks, err := txt.ListTasks(args)
 		if err != nil {
 			fmt.Println("Failed to get tasks", err)
 			os.Exit(1)

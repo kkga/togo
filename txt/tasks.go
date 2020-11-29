@@ -20,7 +20,16 @@ func check(e error) {
 	}
 }
 
-func AllTasks() ([]string, error) {
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
+func ListTasks(queries []string) ([]string, error) {
 	f, err := os.Open("todo.txt")
 	check(err)
 	defer f.Close()
@@ -31,7 +40,17 @@ func AllTasks() ([]string, error) {
 	var tasks []string
 
 	for s.Scan() {
-		tasks = append(tasks, s.Text())
+		if len(queries) > 0 {
+			for _, q := range queries {
+				taskExists := contains(tasks, s.Text())
+				taskMatches := strings.Contains(s.Text(), q)
+				if taskMatches && !taskExists {
+					tasks = append(tasks, s.Text())
+				}
+			}
+		} else {
+			tasks = append(tasks, s.Text())
+		}
 	}
 
 	return tasks, nil
