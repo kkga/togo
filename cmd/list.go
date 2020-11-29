@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/kkga/task/txt"
 	"github.com/spf13/cobra"
@@ -19,7 +20,12 @@ var listCmd = &cobra.Command{
 		}
 
 		for i, task := range tasks {
-			fmt.Println(fmt.Sprintf("%2d | %s", i+1, task))
+			statusStr := "[ ]"
+			if strings.HasPrefix(task, "x ") {
+				statusStr = "[x]"
+				task = strings.Replace(task, "x ", "", 1)
+			}
+			fmt.Println(fmt.Sprintf("%2d %s %s", i+1, statusStr, task))
 		}
 		fmt.Println("-------------------------")
 		fmt.Println("Total tasks: ", len(tasks))

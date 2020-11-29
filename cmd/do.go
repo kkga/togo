@@ -23,7 +23,8 @@ var doCmd = &cobra.Command{
 		}
 
 		for _, id := range ids {
-			err := txt.DeleteTask(id)
+			err := txt.CompleteTask(id)
+			// err := txt.DeleteTask(id)
 			if err != nil {
 				fmt.Println("Failed to delete", err)
 			}
