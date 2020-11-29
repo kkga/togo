@@ -10,7 +10,7 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:     "list",
+	Use:     "list [query...]",
 	Short:   "Lists all tasks",
 	Aliases: []string{"ls"},
 	Run: func(cmd *cobra.Command, args []string) {
