@@ -33,7 +33,13 @@ func AllTasks() {
 	}
 
 	for i, task := range tasks {
-		fmt.Println(i+1, "|", task)
+		number := ""
+		if i+1 >= 10 {
+			number = fmt.Sprintf("%d|", i+1)
+		} else {
+			number = fmt.Sprintf("%d |", i+1)
+		}
+		fmt.Println(fmt.Sprintf("%s %s", number, task))
 	}
 	fmt.Println("---")
 	fmt.Println("Total tasks: ", len(tasks))
@@ -44,8 +50,7 @@ func CreateTask(task string) error {
 	check(err)
 	defer f.Close()
 
-	id, e := f.WriteString("\n" + task)
-	fmt.Println(id)
+	_, e := f.WriteString("\n" + task)
 	if e != nil {
 		return e
 	}
@@ -57,14 +62,4 @@ func CreateTask(task string) error {
 // 		b := tx.Bucket(taskBucket)
 // 		return b.Delete(itob(key))
 // 	})
-// }
-
-// func itob(v int) []byte {
-// 	b := make([]byte, 8)
-// 	binary.BigEndian.PutUint64(b, uint64(v))
-// 	return b
-// }
-
-// func btoi(b []byte) int {
-// 	return int(binary.BigEndian.Uint64(b))
 // }
