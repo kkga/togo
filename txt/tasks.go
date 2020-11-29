@@ -3,7 +3,9 @@ package txt
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type Task struct {
@@ -18,7 +20,7 @@ func check(e error) {
 	}
 }
 
-func AllTasks() {
+func AllTasks() ([]string, error) {
 	f, err := os.Open("todo.txt")
 	check(err)
 	defer f.Close()
@@ -32,17 +34,7 @@ func AllTasks() {
 		tasks = append(tasks, s.Text())
 	}
 
-	for i, task := range tasks {
-		number := ""
-		if i+1 >= 10 {
-			number = fmt.Sprintf("%d|", i+1)
-		} else {
-			number = fmt.Sprintf("%d |", i+1)
-		}
-		fmt.Println(fmt.Sprintf("%s %s", number, task))
-	}
-	fmt.Println("---")
-	fmt.Println("Total tasks: ", len(tasks))
+	return tasks, nil
 }
 
 func CreateTask(task string) error {
@@ -57,9 +49,25 @@ func CreateTask(task string) error {
 	return nil
 }
 
-// func DeleteTask(key int) error {
-// 	return db.Update(func(tx *bolt.Tx) error {
-// 		b := tx.Bucket(taskBucket)
-// 		return b.Delete(itob(key))
-// 	})
-// }
+func DeleteTask(key int) error {
+	f, err := os.OpenFile("todo.txt", os.O_RDWR, 0644)
+	check(err)
+	defer f.Close()
+
+	s := bufio.NewScanner(f)
+	s.Split(bufio.ScanLines)
+
+	var tasks []string
+
+	for s.Scan() {
+		tasks = append(tasks, s.Text())
+	}
+
+	tasks = append(tasks[:key-1], tasks[key:]...)
+
+	output := strings.Join(tasks, "\n")
+	err = ioutil.WriteFile("todo.txt", []byte(output), 0644)
+	check(err)
+
+	return nil
+}

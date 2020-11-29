@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/kkga/task/txt"
 	"github.com/spf13/cobra"
 )
@@ -9,20 +12,17 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Lists all tasks",
 	Run: func(cmd *cobra.Command, args []string) {
-		txt.AllTasks()
-		// tasks, err := txt.AllTasks()
-		// if err != nil {
-		// 	fmt.Println("Something went wrong: ", err.Error())
-		// 	os.Exit(1)
-		// }
-		// if len(tasks) == 0 {
-		// 	fmt.Println("You have no tasks.")
-		// 	return
-		// }
-		// fmt.Println("All tasks:")
-		// for i, task := range tasks {
-		// 	fmt.Printf("%d. %s\n", i+1, task.Value)
-		// }
+		tasks, err := txt.AllTasks()
+		if err != nil {
+			fmt.Println("Failed to get tasks", err)
+			os.Exit(1)
+		}
+
+		for i, task := range tasks {
+			fmt.Println(fmt.Sprintf("%2d | %s", i+1, task))
+		}
+		fmt.Println("-------------------------")
+		fmt.Println("Total tasks: ", len(tasks))
 	},
 }
 
