@@ -9,10 +9,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listCmd = &cobra.Command{
-	Use:     "list [query...]",
-	Short:   "Lists all tasks",
-	Aliases: []string{"ls"},
+var lsCmd = &cobra.Command{
+	Use:     "ls [query...]",
+	Short:   "List tasks",
+	Example: "task ls\ntask ls +myproject\ntask ls myquery",
+	Aliases: []string{"list"},
 	Run: func(cmd *cobra.Command, args []string) {
 		tasks, err := txt.ListTasks(args)
 		if err != nil {
@@ -34,5 +35,5 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(listCmd)
+	RootCmd.AddCommand(lsCmd)
 }
