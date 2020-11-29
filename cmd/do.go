@@ -11,7 +11,7 @@ import (
 
 var doCmd = &cobra.Command{
 	Use:   "do",
-	Short: "Marks tasks as complete",
+	Short: "Mark tasks as complete",
 	Run: func(cmd *cobra.Command, args []string) {
 		var ids []int
 		for _, arg := range args {
