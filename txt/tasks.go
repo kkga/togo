@@ -13,6 +13,7 @@ type Task struct {
 
 func check(e error) {
 	if e != nil {
+		fmt.Println(e)
 		panic(e)
 	}
 }
@@ -31,48 +32,25 @@ func AllTasks() {
 		tasks = append(tasks, s.Text())
 	}
 
-	for _, task := range tasks {
-		fmt.Println(task)
+	for i, task := range tasks {
+		fmt.Println(i+1, "|", task)
 	}
 	fmt.Println("---")
 	fmt.Println("Total tasks: ", len(tasks))
 }
 
-// func CreateTask(task string) (int, error) {
-// 	var id int
-// 	err := db.Update(func(tx *bolt.Tx) error {
-// 		b := tx.Bucket(taskBucket)
-// 		id64, _ := b.NextSequence()
-// 		id = int(id64)
-// 		key := itob(int(id64))
-// 		return b.Put(key, []byte(task))
-// 	})
-// 	if err != nil {
-// 		return -1, err
-// 	}
-// 	return id, nil
-// }
+func CreateTask(task string) error {
+	f, err := os.OpenFile("todo.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	check(err)
+	defer f.Close()
 
-// func AllTasks() ([]Task, error) {
-// 	var tasks []Task
-// 	err := db.View(func(tx *bolt.Tx) error {
-// 		b := tx.Bucket(taskBucket)
-// 		c := b.Cursor()
-
-// 		for k, v := c.First(); k != nil; k, v = c.Next() {
-// 			tasks = append(tasks, Task{
-// 				Key:   btoi(k),
-// 				Value: string(v),
-// 			})
-// 		}
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return tasks, nil
-// }
+	id, e := f.WriteString("\n" + task)
+	fmt.Println(id)
+	if e != nil {
+		return e
+	}
+	return nil
+}
 
 // func DeleteTask(key int) error {
 // 	return db.Update(func(tx *bolt.Tx) error {

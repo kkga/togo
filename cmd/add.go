@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/kkga/gophercises/task/db"
+	"github.com/kkga/task/txt"
 	"github.com/spf13/cobra"
 )
 
@@ -14,9 +14,9 @@ var addCmd = &cobra.Command{
 	Short: "Adds a task",
 	Run: func(cmd *cobra.Command, args []string) {
 		task := strings.Join(args, " ")
-		_, err := db.CreateTask(task)
+		err := txt.CreateTask(task)
 		if err != nil {
-			fmt.Println("Error", err)
+			fmt.Println(err)
 			os.Exit(1)
 		}
 		fmt.Printf("Added \"%s\"\n", task)
