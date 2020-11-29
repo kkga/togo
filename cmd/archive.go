@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kkga/task/txt"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +12,10 @@ var archiveCmd = &cobra.Command{
 	Use:   "archive",
 	Short: "Move all completed tasks from todo.txt to done.txt",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("archive called")
+		err := txt.ArchiveTasks()
+		if err != nil {
+			fmt.Println(err)
+		}
 	},
 }
 

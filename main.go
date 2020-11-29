@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	must(cmd.RootCmd.Execute())
 }
 
