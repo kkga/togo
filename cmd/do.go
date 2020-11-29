@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/kkga/task/txt"
 	"github.com/spf13/cobra"
@@ -23,11 +24,17 @@ var doCmd = &cobra.Command{
 		}
 
 		for _, id := range ids {
-			err := txt.CompleteTask(id)
+			task, err := txt.CompleteTask(id)
 			// err := txt.DeleteTask(id)
 			if err != nil {
 				fmt.Println("Failed to delete", err)
 			}
+			statusStr := "[ ]"
+			if strings.HasPrefix(task, "x ") {
+				statusStr = "[x]"
+				task = strings.Replace(task, "x ", "", 1)
+			}
+			fmt.Println(fmt.Sprintf("%s %s", statusStr, task))
 		}
 
 	},

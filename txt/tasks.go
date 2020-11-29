@@ -61,14 +61,14 @@ func CreateTask(task string) error {
 	check(err)
 	defer f.Close()
 
-	_, e := f.WriteString(task + "\n")
+	_, e := f.WriteString("\n" + task)
 	if e != nil {
 		return e
 	}
 	return nil
 }
 
-func CompleteTask(key int) error {
+func CompleteTask(key int) (string, error) {
 	f, err := os.Open("todo.txt")
 	check(err)
 	defer f.Close()
@@ -88,11 +88,13 @@ func CompleteTask(key int) error {
 		tasks[key-1] = fmt.Sprintf("x %s", tasks[key-1])
 	}
 
+	completedTask := tasks[key-1]
+
 	output := strings.Join(tasks, "\n")
 	err = ioutil.WriteFile("todo.txt", []byte(output), 0644)
 	check(err)
 
-	return nil
+	return completedTask, nil
 }
 
 func DeleteTask(key int) error {
