@@ -63,6 +63,14 @@ func getTaskMap() (map[int]string, error) {
 
 }
 
+func GetTotalTodoLen(fileName string) (int, error) {
+	lines, err := linesInFile(fileName)
+	if err != nil {
+		return 0, err
+	}
+	return len(lines), nil
+}
+
 func writeTodos(tasks []string) error {
 	output := strings.Join(tasks, "\n")
 	err := ioutil.WriteFile("todo.txt", []byte(output), 0644)
@@ -98,25 +106,25 @@ func appendDone(tasks []string) error {
 	return nil
 }
 
-func ListTasks(queries []string) ([]string, error) {
-	todoLines, err := linesInFile("todo.txt")
+func ListTasks(queries []string) (map[int]string, error) {
+	m, err := getTaskMap()
 	if err != nil {
 		return nil, err
 	}
 
-	var tasks []string
+	tasks := make(map[int]string)
 
-	for _, t := range todoLines {
+	for k, v := range m {
 		if len(queries) > 0 {
 			for _, q := range queries {
-				taskExists := contains(tasks, t)
-				taskMatches := strings.Contains(t, q)
-				if taskMatches && !taskExists {
-					tasks = append(tasks, t)
+				_, exists := tasks[k]
+				matches := strings.Contains(v, q)
+				if !exists && matches {
+					tasks[k] = v
 				}
 			}
 		} else {
-			tasks = append(tasks, t)
+			tasks[k] = v
 		}
 	}
 

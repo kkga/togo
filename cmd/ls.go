@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/kkga/togo/txt"
@@ -21,19 +22,34 @@ var lsCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		for i, task := range tasks {
-			statusStr := "[ ]"
-			if strings.HasPrefix(task, "x ") {
-				statusStr = "[x]"
-				task = strings.Replace(task, "x ", "", 1)
-			}
-			fmt.Println(fmt.Sprintf("%2d %s %s", i+1, statusStr, task))
+		// iteration over map happens in random order, so we store the order
+		// in a separate slice
+		var keys []int
+		for k := range tasks {
+			keys = append(keys, k)
 		}
-		fmt.Println("-------------------------")
-		fmt.Println("Total tasks: ", len(tasks))
+		sort.Ints(keys)
+
+		for _, k := range keys {
+			statusStr := "[ ]"
+			if strings.HasPrefix(tasks[k], "x ") {
+				statusStr = "[x]"
+				tasks[k] = strings.Replace(tasks[k], "x ", "", 1)
+			}
+			fmt.Println(fmt.Sprintf("%2d %s %s", k, statusStr, tasks[k]))
+		}
+
+		totalLen, err := txt.GetTotalTodoLen("todo.txt")
+		if err != nil {
+			os.Exit(1)
+		}
+
+		fmt.Println("------")
+		fmt.Printf("%d/%d todos shown\n", len(tasks), totalLen)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(lsCmd)
+	// lsCmd.Flags().BoolP("done", "d", false, "List done tasks from done.txt")
 }
