@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 )
@@ -83,12 +82,12 @@ func writeTodos(tasks []string) error {
 func appendTodo(task string) error {
 	todoFile, err := os.OpenFile("todo.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer todoFile.Close()
 
 	if _, err := todoFile.WriteString("\n" + task); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	return nil
@@ -133,7 +132,7 @@ func ListTasks(queries []string) (map[int]string, error) {
 
 func CreateTask(task string) error {
 	if err := appendTodo(task); err != nil {
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }

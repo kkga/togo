@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/kkga/togo/txt"
 	"github.com/spf13/cobra"
 )
@@ -31,19 +32,16 @@ var lsCmd = &cobra.Command{
 		sort.Ints(keys)
 
 		for _, k := range keys {
-			statusStr := "[ ]"
 			if strings.HasPrefix(tasks[k], "x ") {
-				statusStr = "[x]"
-				tasks[k] = strings.Replace(tasks[k], "x ", "", 1)
+				crossedOut := color.New(color.CrossedOut).SprintFunc()
+				taskStr := strings.Replace(tasks[k], "x ", "", 1)
+				fmt.Println(fmt.Sprintf("%2d %s %s", k, "[x]", crossedOut(taskStr)))
+			} else {
+				fmt.Println(fmt.Sprintf("%2d %s %s", k, "[ ]", tasks[k]))
 			}
-			fmt.Println(fmt.Sprintf("%2d %s %s", k, statusStr, tasks[k]))
 		}
 
-		totalLen, err := txt.GetTotalTodoLen("todo.txt")
-		if err != nil {
-			os.Exit(1)
-		}
-
+		totalLen, _ := txt.GetTotalTodoLen("todo.txt")
 		fmt.Println("------")
 		fmt.Printf("%d/%d todos shown\n", len(tasks), totalLen)
 	},
