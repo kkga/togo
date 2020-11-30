@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/kkga/task/txt"
+	"github.com/kkga/togo/txt"
 	"github.com/spf13/cobra"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kkga/task/cmd"
+	"github.com/kkga/togo/cmd"
 )
 
 func main() {
