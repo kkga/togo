@@ -44,6 +44,10 @@ func linesInFile(fileName string) []string {
 	return result
 }
 
+func writeTodo(tasks []string) error {
+	return nil
+}
+
 func ListTasks(queries []string) ([]string, error) {
 	f, err := os.Open("todo.txt")
 	check(err)
@@ -127,13 +131,7 @@ func ArchiveTasks() error {
 			completedTasks = append(completedTasks, task)
 			taskMap[i] = ""
 		}
-		// if strings.HasPrefix(task, "x ") {
-		// 	completedTasks = append(completedTasks, tasks[i])
-		// 	tasks = append(tasks[:i], tasks[:i+1]...)
-		// 	i = i - 1
-		// }
 	}
-	fmt.Println(taskMap)
 
 	output := []string{}
 

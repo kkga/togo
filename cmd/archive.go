@@ -9,8 +9,9 @@ import (
 
 // archiveCmd represents the archive command
 var archiveCmd = &cobra.Command{
-	Use:   "archive",
-	Short: "Move all completed tasks from todo.txt to done.txt",
+	Use:     "archive",
+	Aliases: []string{"arch"},
+	Short:   "Move all completed tasks from todo.txt to done.txt",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := txt.ArchiveTasks()
 		if err != nil {
