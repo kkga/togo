@@ -48,6 +48,21 @@ func linesInFile(fileName string) ([]string, error) {
 	return result, nil
 }
 
+func getTaskMap() (map[int]string, error) {
+	m := make(map[int]string)
+	todoLines, err := linesInFile("todo.txt")
+	if err != nil {
+		return nil, err
+	}
+
+	for i, line := range todoLines {
+		m[i+1] = line
+	}
+
+	return m, nil
+
+}
+
 func writeTodos(tasks []string) error {
 	output := strings.Join(tasks, "\n")
 	err := ioutil.WriteFile("todo.txt", []byte(output), 0644)
@@ -137,17 +152,12 @@ func CompleteTask(key int) (string, error) {
 }
 
 func ArchiveTasks() error {
-	todoLines, err := linesInFile("todo.txt")
+	taskMap, err := getTaskMap()
 	if err != nil {
 		return err
 	}
 
-	taskMap := make(map[int]string)
-	for i, line := range todoLines {
-		taskMap[i] = line
-	}
-
-	var completedTasks []string
+	completedTasks := make([]string, 0)
 	for i, task := range taskMap {
 		if strings.HasPrefix(task, "x ") {
 			completedTasks = append(completedTasks, task)
@@ -172,25 +182,29 @@ func ArchiveTasks() error {
 	return nil
 }
 
-func DeleteTask(key int) error {
-	f, err := os.Open("todo.txt")
-	check(err)
-	defer f.Close()
-
-	s := bufio.NewScanner(f)
-	s.Split(bufio.ScanLines)
-
-	var tasks []string
-
-	for s.Scan() {
-		tasks = append(tasks, s.Text())
+func DeleteTask(key int) (string, error) {
+	taskMap, err := getTaskMap()
+	if err != nil {
+		return "", err
 	}
 
-	tasks = append(tasks[:key-1], tasks[key:]...)
+	_, ok := taskMap[key]
+	if !ok {
+		return "", fmt.Errorf("Task #%d doesn't exist", key)
+	}
+	deletedTask := taskMap[key]
+	delete(taskMap, key)
+
+	tasks := []string{}
+	for _, task := range taskMap {
+		if task != "" {
+			tasks = append(tasks, task)
+		}
+	}
 
 	if err := writeTodos(tasks); err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return deletedTask, nil
 }

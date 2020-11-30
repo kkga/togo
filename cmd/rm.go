@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 
+	"github.com/kkga/task/txt"
 	"github.com/spf13/cobra"
 )
 
@@ -12,8 +15,18 @@ var rmCmd = &cobra.Command{
 	Aliases: []string{"remove"},
 	Short:   "Remove a task",
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO
-		fmt.Println("rm called")
+		key, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println("Cannot parse task number")
+		}
+
+		deletedTask, err := txt.DeleteTask(key)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println("Removed:", deletedTask)
 	},
 }
 
