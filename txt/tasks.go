@@ -45,30 +45,42 @@ func linesInFile(fileName string) []string {
 }
 
 func writeTodo(tasks []string) error {
+	output := strings.Join(tasks, "\n")
+	err := ioutil.WriteFile("todo.txt", []byte(output), 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func appendDone(tasks []string) error {
+	doneFile, err := os.OpenFile("done.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	check(err)
+	for _, task := range tasks {
+		_, err := doneFile.WriteString("\n" + task)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 func ListTasks(queries []string) ([]string, error) {
-	f, err := os.Open("todo.txt")
-	check(err)
-	defer f.Close()
-
-	s := bufio.NewScanner(f)
-	s.Split(bufio.ScanLines)
+	todoLines := linesInFile("todo.txt")
 
 	var tasks []string
 
-	for s.Scan() {
+	for _, t := range todoLines {
 		if len(queries) > 0 {
 			for _, q := range queries {
-				taskExists := contains(tasks, s.Text())
-				taskMatches := strings.Contains(s.Text(), q)
+				taskExists := contains(tasks, t)
+				taskMatches := strings.Contains(t, q)
 				if taskMatches && !taskExists {
-					tasks = append(tasks, s.Text())
+					tasks = append(tasks, t)
 				}
 			}
 		} else {
-			tasks = append(tasks, s.Text())
+			tasks = append(tasks, t)
 		}
 	}
 
@@ -88,18 +100,7 @@ func CreateTask(task string) error {
 }
 
 func CompleteTask(key int) (string, error) {
-	f, err := os.Open("todo.txt")
-	check(err)
-	defer f.Close()
-
-	s := bufio.NewScanner(f)
-	s.Split(bufio.ScanLines)
-
-	var tasks []string
-
-	for s.Scan() {
-		tasks = append(tasks, s.Text())
-	}
+	tasks := linesInFile("todo.txt")
 
 	if strings.HasPrefix(tasks[key-1], "x ") {
 		tasks[key-1] = strings.Replace(tasks[key-1], "x ", "", 1)
@@ -109,9 +110,9 @@ func CompleteTask(key int) (string, error) {
 
 	completedTask := tasks[key-1]
 
-	output := strings.Join(tasks, "\n")
-	err = ioutil.WriteFile("todo.txt", []byte(output), 0644)
-	check(err)
+	if err := writeTodo(tasks); err != nil {
+		return "", err
+	}
 
 	return completedTask, nil
 }
@@ -120,12 +121,11 @@ func ArchiveTasks() error {
 	lines := linesInFile("todo.txt")
 
 	taskMap := make(map[int]string)
-	var completedTasks []string
-
 	for i, line := range lines {
 		taskMap[i] = line
 	}
 
+	var completedTasks []string
 	for i, task := range taskMap {
 		if strings.HasPrefix(task, "x ") {
 			completedTasks = append(completedTasks, task)
@@ -133,26 +133,18 @@ func ArchiveTasks() error {
 		}
 	}
 
-	output := []string{}
-
+	tasks := []string{}
 	for _, task := range taskMap {
 		if task != "" {
-			output = append(output, task)
+			tasks = append(tasks, task)
 		}
-	}
-	tasksOutput := strings.Join(output, "\n")
-	err := ioutil.WriteFile("todo.txt", []byte(tasksOutput), 0644)
-	if err != nil {
-		return err
 	}
 
-	doneFile, err := os.OpenFile("done.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	check(err)
-	for _, task := range completedTasks {
-		_, err := doneFile.WriteString("\n" + task)
-		if err != nil {
-			return err
-		}
+	if err := writeTodo(tasks); err != nil {
+		return err
+	}
+	if err := appendDone(completedTasks); err != nil {
+		return err
 	}
 
 	return nil
@@ -174,9 +166,9 @@ func DeleteTask(key int) error {
 
 	tasks = append(tasks[:key-1], tasks[key:]...)
 
-	output := strings.Join(tasks, "\n")
-	err = ioutil.WriteFile("todo.txt", []byte(output), 0644)
-	check(err)
+	if err := writeTodo(tasks); err != nil {
+		return err
+	}
 
 	return nil
 }
