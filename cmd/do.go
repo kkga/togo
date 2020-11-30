@@ -12,7 +12,7 @@ import (
 var doCmd = &cobra.Command{
 	Use:     "do",
 	Aliases: []string{"d, done"},
-	Short:   "Mark tasks as complete",
+	Short:   "Mark todo as done",
 	Run: func(cmd *cobra.Command, args []string) {
 		var ids []int
 		for _, arg := range args {

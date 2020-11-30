@@ -13,11 +13,11 @@ import (
 var rmCmd = &cobra.Command{
 	Use:     "rm",
 	Aliases: []string{"remove"},
-	Short:   "Remove a task",
+	Short:   "Remove todo",
 	Run: func(cmd *cobra.Command, args []string) {
 		key, err := strconv.Atoi(args[0])
 		if err != nil {
-			fmt.Println("Cannot parse task number")
+			fmt.Println("Cannot parse todo number")
 		}
 
 		deletedTask, err := txt.DeleteTask(key)

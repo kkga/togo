@@ -11,7 +11,7 @@ import (
 
 var addCmd = &cobra.Command{
 	Use:     "add",
-	Short:   "Add a task",
+	Short:   "Add todo",
 	Aliases: []string{"a"},
 	Run: func(cmd *cobra.Command, args []string) {
 		task := strings.Join(args, " ")

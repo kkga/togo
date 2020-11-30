@@ -13,9 +13,9 @@ import (
 
 var lsCmd = &cobra.Command{
 	Use:     "ls [query...]",
-	Short:   "List tasks",
-	Example: "task ls\ntask ls +myproject\ntask ls myquery",
-	Aliases: []string{"list"},
+	Short:   "List todos",
+	Example: "togo ls\ntogo ls +myproject\ntogo ls myquery",
+	Aliases: []string{"l, list"},
 	Run: func(cmd *cobra.Command, args []string) {
 		tasks, err := txt.ListTasks(args)
 		if err != nil {

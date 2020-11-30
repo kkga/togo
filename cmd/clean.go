@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// archiveCmd represents the archive command
-var archiveCmd = &cobra.Command{
-	Use:     "archive",
-	Aliases: []string{"arch"},
-	Short:   "Move all completed tasks from todo.txt to done.txt",
+// cleanCmd represents the clean command
+var cleanCmd = &cobra.Command{
+	Use:     "clean",
+	Aliases: []string{"cl"},
+	Short:   "Move done todos to done.txt",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := txt.ArchiveTasks()
 		if err != nil {
@@ -21,7 +21,7 @@ var archiveCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(archiveCmd)
+	RootCmd.AddCommand(cleanCmd)
 
 	// Here you will define your flags and configuration settings.
 
