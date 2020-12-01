@@ -1,6 +1,10 @@
 package txt
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+)
 
 func TestLinesInFile(t *testing.T) {
 	cases := []struct {
@@ -15,20 +19,8 @@ func TestLinesInFile(t *testing.T) {
 		if err != nil {
 			t.Fatal("Cannot read file")
 		}
-		if !Equal(c.want, got) {
+		if !cmp.Equal(c.want, got) {
 			t.Errorf("linesInFile(%q) == %q, WANT: %q", c.fileName, got, c.want)
 		}
 	}
-}
-
-func Equal(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
 }
