@@ -43,6 +43,7 @@ func contains(s []string, str string) bool {
 	return false
 }
 
+// linesInFile scans the given fileName and returns a slice of strings for each line
 func linesInFile(fileName string) ([]string, error) {
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -61,25 +62,10 @@ func linesInFile(fileName string) ([]string, error) {
 	return result, nil
 }
 
-func getTaskMap() (map[int]string, error) {
-	m := make(map[int]string)
-	todoLines, err := linesInFile("todo.txt")
-	if err != nil {
-		return nil, err
-	}
-
-	for i, line := range todoLines {
-		m[i+1] = line
-	}
-
-	return m, nil
-
-}
-
 // GetTodoMap converts a todo.txt file into a map of Todos
-func GetTodoMap() (map[int]Todo, error) {
+func GetTodoMap(fileName string) (map[int]Todo, error) {
 	m := make(map[int]Todo)
-	todoLines, err := linesInFile("todo.txt")
+	todoLines, err := linesInFile(fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +117,89 @@ func ParseTodo(todo string) Todo {
 	}
 }
 
+// FormatTodo converts a Todo struct into a formatted string for output
+func FormatTodo(todo Todo) string {
+	s := make([]string, 0)
+
+	if todo.Done {
+		s = append(s, "x")
+	}
+	if !todo.CompletionDate.IsZero() {
+		s = append(s, todo.CompletionDate.Format("2006-01-02"))
+	}
+	if !todo.CreationDate.IsZero() {
+		s = append(s, todo.CreationDate.Format("2006-01-02"))
+	}
+	if todo.Subject != "" {
+		s = append(s, todo.Subject)
+	}
+
+	return strings.Join(s, " ")
+}
+
+// ListTodos returns a map of formatted todo strings that match given queries
+func ListTodos(queries []string, fileName string) (map[int]string, error) {
+	m, err := GetTodoMap(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	todos := make(map[int]string)
+
+	for k, todo := range m {
+		if len(queries) > 0 {
+			for _, q := range queries {
+				_, exists := todos[k]
+				matches := strings.Contains(todo.Subject, q)
+				if !exists && matches {
+					todos[k] = FormatTodo(todo)
+				}
+			}
+		} else {
+			todos[k] = FormatTodo(todo)
+		}
+	}
+
+	return todos, nil
+}
+
+// func ListTasks(queries []string) (map[int]string, error) {
+// 	m, err := getTaskMap()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	tasks := make(map[int]string)
+
+// 	for k, v := range m {
+// 		if len(queries) > 0 {
+// 			for _, q := range queries {
+// 				_, exists := tasks[k]
+// 				matches := strings.Contains(v, q)
+// 				if !exists && matches {
+// 					tasks[k] = v
+// 				}
+// 			}
+// 		} else {
+// 			tasks[k] = v
+// 		}
+// 	}
+
+// 	return tasks, nil
+// }
+
+func getTaskMap() (map[int]string, error) {
+	m := make(map[int]string)
+	todoLines, err := linesInFile("todo.txt")
+	if err != nil {
+		return nil, err
+	}
+	for i, line := range todoLines {
+		m[i+1] = line
+	}
+	return m, nil
+}
+
 func GetTotalTodoLen(fileName string) (int, error) {
 	lines, err := linesInFile(fileName)
 	if err != nil {
@@ -172,31 +241,6 @@ func appendDone(tasks []string) error {
 		}
 	}
 	return nil
-}
-
-func ListTasks(queries []string) (map[int]string, error) {
-	m, err := getTaskMap()
-	if err != nil {
-		return nil, err
-	}
-
-	tasks := make(map[int]string)
-
-	for k, v := range m {
-		if len(queries) > 0 {
-			for _, q := range queries {
-				_, exists := tasks[k]
-				matches := strings.Contains(v, q)
-				if !exists && matches {
-					tasks[k] = v
-				}
-			}
-		} else {
-			tasks[k] = v
-		}
-	}
-
-	return tasks, nil
 }
 
 func CreateTask(task string) error {

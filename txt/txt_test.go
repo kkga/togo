@@ -12,8 +12,18 @@ func TestLinesInFile(t *testing.T) {
 		fileName string
 		want     []string
 	}{
-		{"todo-small.txt", []string{"first todo", "last todo"}},
-		{"todo.txt", []string{"first todo", "2020-11-30 todo with date", "x 2020-11-30 completed todo with date", "last todo"}},
+		{"todo-small.txt",
+			[]string{
+				"first todo",
+				"last todo",
+			}},
+		{"todo.txt",
+			[]string{
+				"first todo",
+				"2020-11-30 todo with date",
+				"x 2020-11-30 2019-10-12 completed todo with date",
+				"last todo",
+			}},
 	}
 	for _, c := range cases {
 		got, err := linesInFile("../testdata/" + c.fileName)
@@ -26,7 +36,7 @@ func TestLinesInFile(t *testing.T) {
 	}
 }
 
-func TestTaskComplete(t *testing.T) {
+func TestTodoComplete(t *testing.T) {
 	cases := []struct {
 		todo Todo
 		want Todo
@@ -83,6 +93,63 @@ func TestParseTodo(t *testing.T) {
 		got := ParseTodo(c.todoStr)
 		if !cmp.Equal(got, c.want) {
 			t.Errorf("WANT: %v, GOT: %v", c.want, got)
+		}
+	}
+}
+
+func TestFormatTodo(t *testing.T) {
+	cases := []struct {
+		todo Todo
+		want string
+	}{
+
+		{Todo{
+			Done:           true,
+			CompletionDate: time.Date(2020, 05, 05, 0, 0, 0, 0, time.UTC),
+			CreationDate:   time.Date(2020, 01, 12, 0, 0, 0, 0, time.UTC),
+			Subject:        "completed todo with dates"},
+			"x 2020-05-05 2020-01-12 completed todo with dates",
+		},
+		{Todo{
+			Done:         false,
+			CreationDate: time.Date(2019, 12, 01, 0, 0, 0, 0, time.UTC),
+			Subject:      "todo with creation date"},
+			"2019-12-01 todo with creation date",
+		},
+	}
+	for _, c := range cases {
+		got := FormatTodo(c.todo)
+		if !cmp.Equal(c.want, got) {
+			t.Errorf("WANT: %s, GOT: %s", c.want, got)
+		}
+	}
+}
+
+func TestListTodos(t *testing.T) {
+	cases := []struct {
+		fileName string
+		want     map[int]string
+	}{
+		{"todo-small.txt",
+			map[int]string{
+				1: "first todo",
+				2: "last todo",
+			}},
+		{"todo.txt",
+			map[int]string{
+				1: "first todo",
+				2: "2020-11-30 todo with date",
+				3: "x 2020-11-30 2019-10-12 completed todo with date",
+				4: "last todo",
+			}},
+	}
+	for _, c := range cases {
+		got, err := ListTodos(make([]string, 0), "../testdata/"+c.fileName)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !cmp.Equal(c.want, got) {
+			t.Errorf("%q == %q, WANT: %q", c.fileName, got, c.want)
 		}
 	}
 }

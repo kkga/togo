@@ -1,4 +1,4 @@
 first todo
 2020-11-30 todo with date
-x 2020-11-30 completed todo with date
+x 2020-11-30 2019-10-12 completed todo with date
 last todo
