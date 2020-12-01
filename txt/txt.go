@@ -5,16 +5,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
+	"time"
 )
 
+// Todo represents a single todo item
 type Todo struct {
-	Num  int
-	Done bool
-	Subj string
-	Proj string
+	Done           bool
+	Priority       string
+	CompletionDate time.Time
+	CreationDate   time.Time
+	Subject        string
+	Project        string
+	Context        string
+	Tags           []string
 }
 
+// Complete marks the todo as complete or incomplete
 func (t *Todo) Complete() bool {
 	t.Done = !t.Done
 	return t.Done
@@ -66,6 +74,61 @@ func getTaskMap() (map[int]string, error) {
 
 	return m, nil
 
+}
+
+// GetTodoMap converts a todo.txt file into a map of Todos
+func GetTodoMap() (map[int]Todo, error) {
+	m := make(map[int]Todo)
+	todoLines, err := linesInFile("todo.txt")
+	if err != nil {
+		return nil, err
+	}
+	for i, line := range todoLines {
+		m[i+1] = ParseTodo(line)
+	}
+
+	return m, nil
+}
+
+// ParseTodo converts a string into a Todo struct
+func ParseTodo(todo string) Todo {
+	var done bool
+	var subject string
+	var completionDate time.Time
+	var creationDate time.Time
+
+	// check if the task is done
+	if strings.HasPrefix(todo, "x ") {
+		done = true
+		todo = strings.Replace(todo, "x ", "", 1)
+	}
+
+	// parse dates
+	dateLayout := "2006-01-02"
+	dateRe := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	dates := dateRe.FindAllString(todo, -1)
+
+	if len(dates) == 1 {
+		todo = strings.Replace(todo, dates[0]+" ", "", 1)
+		date, _ := time.Parse(dateLayout, dates[0])
+		creationDate = date
+	} else if len(dates) > 1 {
+		todo = strings.Replace(todo, dates[0]+" ", "", 1)
+		compDate, _ := time.Parse(dateLayout, dates[0])
+		completionDate = compDate
+		todo = strings.Replace(todo, dates[1]+" ", "", 1)
+		creatDate, _ := time.Parse(dateLayout, dates[1])
+		creationDate = creatDate
+	}
+
+	subject = todo
+
+	return Todo{
+		Done:           done,
+		Subject:        subject,
+		CompletionDate: completionDate,
+		CreationDate:   creationDate,
+	}
 }
 
 func GetTotalTodoLen(fileName string) (int, error) {
