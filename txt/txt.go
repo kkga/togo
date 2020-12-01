@@ -8,15 +8,21 @@ import (
 	"strings"
 )
 
-type Task struct {
-	Key   int
-	Value string
+type Todo struct {
+	Num  int
+	Done bool
+	Subj string
+	Proj string
+}
+
+func (t *Todo) Complete() bool {
+	t.Done = !t.Done
+	return t.Done
 }
 
 func check(e error) {
 	if e != nil {
-		fmt.Println(e)
-		// panic(e)
+		panic(e)
 	}
 }
 

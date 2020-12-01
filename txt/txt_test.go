@@ -24,3 +24,27 @@ func TestLinesInFile(t *testing.T) {
 		}
 	}
 }
+
+func TestTaskComplete(t *testing.T) {
+	cases := []struct {
+		todo Todo
+		want Todo
+	}{
+		{
+			Todo{Num: 1, Done: false, Subj: "my Todo"},
+			Todo{Num: 1, Done: true, Subj: "my Todo"},
+		},
+		{
+			Todo{Num: 1, Done: true, Subj: "my Todo"},
+			Todo{Num: 1, Done: false, Subj: "my Todo"},
+		},
+	}
+	for _, c := range cases {
+		todo := c.todo
+		todo.Complete()
+
+		if !cmp.Equal(c.want, todo) {
+			t.Errorf("GIVEN: %v, WANT: %v, GOT: %v", c.todo, c.want, todo)
+		}
+	}
+}
