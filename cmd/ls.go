@@ -17,7 +17,8 @@ var lsCmd = &cobra.Command{
 	Example: "togo ls\ntogo ls +myproject\ntogo ls myquery",
 	Aliases: []string{"l, list"},
 	Run: func(cmd *cobra.Command, args []string) {
-		tasks, err := txt.ListTasks(args)
+		// TODO: reverse the order of args here, use filename first
+		todos, err := txt.ListTodos(args, "todo.txt")
 		if err != nil {
 			fmt.Println("Failed to get tasks", err)
 			os.Exit(1)
@@ -26,24 +27,24 @@ var lsCmd = &cobra.Command{
 		// iteration over map happens in random order, so we store the order
 		// in a separate slice
 		var keys []int
-		for k := range tasks {
+		for k := range todos {
 			keys = append(keys, k)
 		}
 		sort.Ints(keys)
 
 		for _, k := range keys {
-			if strings.HasPrefix(tasks[k], "x ") {
+			if strings.HasPrefix(todos[k], "x ") {
 				crossedOut := color.New(color.CrossedOut).SprintFunc()
-				taskStr := strings.Replace(tasks[k], "x ", "", 1)
-				fmt.Println(fmt.Sprintf("%2d %s %s", k, "[x]", crossedOut(taskStr)))
+				// taskStr := strings.Replace(todos[k], "x ", "", 1)
+				fmt.Println(fmt.Sprintf("%2d| %s", k, crossedOut(todos[k])))
 			} else {
-				fmt.Println(fmt.Sprintf("%2d %s %s", k, "[ ]", tasks[k]))
+				fmt.Println(fmt.Sprintf("%2d| %s", k, todos[k]))
 			}
 		}
 
 		totalLen, _ := txt.GetTotalTodoLen("todo.txt")
 		fmt.Println("------")
-		fmt.Printf("%d/%d todos shown\n", len(tasks), totalLen)
+		fmt.Printf("%d/%d todos shown\n", len(todos), totalLen)
 	},
 }
 
