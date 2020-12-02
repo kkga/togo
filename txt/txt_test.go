@@ -28,7 +28,7 @@ func TestLinesInFile(t *testing.T) {
 			}},
 	}
 	for _, c := range cases {
-		got, err := linesInFile("../testdata/" + c.fileName)
+		got, err := LinesInFile("../testdata/" + c.fileName)
 		if err != nil {
 			t.Fatal("Cannot read file")
 		}
