@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const dateLayout = "2006-01-02"
+
 // Todo represents a single todo item
 type Todo struct {
 	Done           bool
@@ -91,7 +93,6 @@ func ParseTodo(todo string) Todo {
 	}
 
 	// parse dates
-	dateLayout := "2006-01-02"
 	dateRe := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
 	dates := dateRe.FindAllString(todo, -1)
 
@@ -126,10 +127,10 @@ func FormatTodo(todo Todo) string {
 		s = append(s, "x")
 	}
 	if !todo.CompletionDate.IsZero() {
-		s = append(s, todo.CompletionDate.Format("2006-01-02"))
+		s = append(s, todo.CompletionDate.Format(dateLayout))
 	}
 	if !todo.CreationDate.IsZero() {
-		s = append(s, todo.CreationDate.Format("2006-01-02"))
+		s = append(s, todo.CreationDate.Format(dateLayout))
 	}
 	if todo.Subject != "" {
 		s = append(s, todo.Subject)
@@ -205,6 +206,14 @@ func CompleteTodo(key int) (Todo, error) {
 	}
 	if todo, ok := todoMap[key]; ok {
 		todo.Complete()
+		if !todo.CreationDate.IsZero() {
+			switch todo.Done {
+			case true:
+				todo.CompletionDate = time.Now()
+			case false:
+				todo.CompletionDate = time.Time{}
+			}
+		}
 		todoMap[key] = todo
 	} else {
 		return Todo{}, errors.New("Non-existing todo number")
@@ -218,16 +227,17 @@ func CompleteTodo(key int) (Todo, error) {
 }
 
 // AddTodo creates a new Todo from input and writes the updated todoMap to file
-func AddTodo(t string) (Todo, error) {
-	todoMap, err := GetTodoMap("todo.txt")
+func AddTodo(t string, fileName string) (Todo, error) {
+	todoMap, err := GetTodoMap(fileName)
 	if err != nil {
 		return Todo{}, err
 	}
 
 	todo := ParseTodo(t)
+	todo.CreationDate = time.Now()
 	todoMap[len(todoMap)+1] = todo
 
-	if err := WriteTodoMap(todoMap, "todo.txt"); err != nil {
+	if err := WriteTodoMap(todoMap, fileName); err != nil {
 		return Todo{}, err
 	}
 

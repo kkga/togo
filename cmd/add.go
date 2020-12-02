@@ -15,7 +15,7 @@ var addCmd = &cobra.Command{
 	Aliases: []string{"a"},
 	Run: func(cmd *cobra.Command, args []string) {
 		t := strings.Join(args, " ")
-		todo, err := txt.AddTodo(t)
+		todo, err := txt.AddTodo(t, "todo.txt")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
