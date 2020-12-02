@@ -44,8 +44,8 @@ func contains(s []string, str string) bool {
 	return false
 }
 
-// linesInFile scans the given fileName and returns a slice of strings for each line
-func linesInFile(fileName string) ([]string, error) {
+// LinesInFile scans the given fileName and returns a slice of strings for each line
+func LinesInFile(fileName string) ([]string, error) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func linesInFile(fileName string) ([]string, error) {
 // GetTodoMap converts a todo.txt file into a map of Todos
 func GetTodoMap(fileName string) (map[int]Todo, error) {
 	m := make(map[int]Todo)
-	todoLines, err := linesInFile(fileName)
+	todoLines, err := LinesInFile(fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -217,101 +217,76 @@ func CompleteTodo(key int) (Todo, error) {
 	return todoMap[key], nil
 }
 
-func GetTotalTodoLen(fileName string) (int, error) {
-	lines, err := linesInFile(fileName)
+// AddTodo creates a new Todo from input and writes the updated todoMap to file
+func AddTodo(t string) (Todo, error) {
+	todoMap, err := GetTodoMap("todo.txt")
 	if err != nil {
-		return 0, err
+		return Todo{}, err
 	}
-	return len(lines), nil
+
+	todo := ParseTodo(t)
+	todoMap[len(todoMap)+1] = todo
+
+	if err := WriteTodoMap(todoMap, "todo.txt"); err != nil {
+		return Todo{}, err
+	}
+
+	return todo, nil
 }
 
-func appendTodo(task string) error {
-	todoFile, err := os.OpenFile("todo.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+// DeleteTodo removes the given todo number from todoMap and writes back to file
+func DeleteTodo(key int) (Todo, error) {
+	todoMap, err := GetTodoMap("todo.txt")
 	if err != nil {
-		return err
-	}
-	defer todoFile.Close()
-
-	if _, err := todoFile.WriteString("\n" + task); err != nil {
-		return err
+		return Todo{}, err
 	}
 
-	return nil
+	deletedTodo := Todo{}
+
+	if todo, ok := todoMap[key]; ok {
+		deletedTodo = todo
+		delete(todoMap, key)
+	}
+
+	if err := WriteTodoMap(todoMap, "todo.txt"); err != nil {
+		return Todo{}, err
+	}
+
+	return deletedTodo, nil
 }
 
-func appendDone(tasks []string) error {
-	doneFile, err := os.OpenFile("done.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	check(err)
-	for _, task := range tasks {
-		_, err := doneFile.WriteString("\n" + task)
-		if err != nil {
-			return err
+// CleanTodos moves all completed todos from todo.txt to done.txt
+func CleanTodos(fileName string) ([]Todo, error) {
+	removed := make([]Todo, 0)
+
+	todoMap, err := GetTodoMap(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	for k, todo := range todoMap {
+		if todo.Done {
+			delete(todoMap, k)
+			removed = append(removed, todo)
 		}
 	}
-	return nil
-}
 
-func CreateTask(task string) error {
-	if err := appendTodo(task); err != nil {
-		return err
+	if err := WriteTodoMap(todoMap, fileName); err != nil {
+		return nil, err
 	}
-	return nil
+
+	doneFile, err := os.OpenFile("done.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, err
+	}
+	defer doneFile.Close()
+
+	for _, todo := range removed {
+		todoStr := FormatTodo(todo)
+		if _, err := doneFile.WriteString(todoStr + "\n"); err != nil {
+			return nil, err
+		}
+	}
+
+	return removed, nil
 }
-
-// func ArchiveTasks() error {
-// 	taskMap, err := GetTodoMap("todo.txt")
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	completedTasks := make([]string, 0)
-// 	for i, task := range taskMap {
-// 		if strings.HasPrefix(task, "x ") {
-// 			completedTasks = append(completedTasks, task)
-// 			taskMap[i] = ""
-// 		}
-// 	}
-
-// 	tasks := []string{}
-// 	for _, task := range taskMap {
-// 		if task != "" {
-// 			tasks = append(tasks, task)
-// 		}
-// 	}
-
-// 	if err := writeTodos(tasks); err != nil {
-// 		return err
-// 	}
-// 	if err := appendDone(completedTasks); err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func DeleteTask(key int) (string, error) {
-// 	taskMap, err := GetTodoMap("todo.txt")
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	_, ok := taskMap[key]
-// 	if !ok {
-// 		return "", fmt.Errorf("Task #%d doesn't exist", key)
-// 	}
-// 	deletedTask := taskMap[key]
-// 	delete(taskMap, key)
-
-// 	tasks := []string{}
-// 	for _, task := range taskMap {
-// 		if task.Subject != "" {
-// 			tasks = append(tasks, task)
-// 		}
-// 	}
-
-// 	if err := writeTodos(tasks); err != nil {
-// 		return "", err
-// 	}
-
-// 	return deletedTask, nil
-// }

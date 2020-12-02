@@ -14,13 +14,13 @@ var addCmd = &cobra.Command{
 	Short:   "Add todo",
 	Aliases: []string{"a"},
 	Run: func(cmd *cobra.Command, args []string) {
-		task := strings.Join(args, " ")
-		err := txt.CreateTask(task)
+		t := strings.Join(args, " ")
+		todo, err := txt.AddTodo(t)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("Added \"%s\"\n", task)
+		fmt.Printf("Added \"%s\"\n", todo.Subject)
 	},
 }
 

@@ -32,17 +32,24 @@ var lsCmd = &cobra.Command{
 		sort.Ints(keys)
 
 		for _, k := range keys {
+			var todoStr string
+			var statusStr string
+
 			if strings.HasPrefix(todos[k], "x ") {
 				crossedOut := color.New(color.CrossedOut).SprintFunc()
-				fmt.Println(fmt.Sprintf("%2d| %s", k, crossedOut(todos[k])))
+				todoStr = strings.Replace(todos[k], "x ", "", 1)
+				todoStr = crossedOut(todoStr)
+				statusStr = "x"
 			} else {
-				fmt.Println(fmt.Sprintf("%2d| %s", k, todos[k]))
+				todoStr = todos[k]
+				statusStr = " "
 			}
+			fmt.Println(fmt.Sprintf("%2d [%s] %s", k, statusStr, todoStr))
 		}
 
-		totalLen, _ := txt.GetTotalTodoLen("todo.txt")
+		todoLines, _ := txt.LinesInFile("todo.txt")
 		fmt.Println("------")
-		fmt.Printf("%d/%d todos shown\n", len(todos), totalLen)
+		fmt.Printf("%d/%d todos shown\n", len(todos), len(todoLines))
 	},
 }
 
