@@ -17,7 +17,6 @@ var lsCmd = &cobra.Command{
 	Example: "togo ls\ntogo ls +myproject\ntogo ls myquery",
 	Aliases: []string{"l, list"},
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: reverse the order of args here, use filename first
 		todos, err := txt.ListTodos(args, "todo.txt")
 		if err != nil {
 			fmt.Println("Failed to get tasks", err)
@@ -35,7 +34,6 @@ var lsCmd = &cobra.Command{
 		for _, k := range keys {
 			if strings.HasPrefix(todos[k], "x ") {
 				crossedOut := color.New(color.CrossedOut).SprintFunc()
-				// taskStr := strings.Replace(todos[k], "x ", "", 1)
 				fmt.Println(fmt.Sprintf("%2d| %s", k, crossedOut(todos[k])))
 			} else {
 				fmt.Println(fmt.Sprintf("%2d| %s", k, todos[k]))

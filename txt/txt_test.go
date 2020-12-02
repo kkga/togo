@@ -1,6 +1,8 @@
 package txt
 
 import (
+	"io/ioutil"
+	"strconv"
 	"testing"
 	"time"
 
@@ -150,6 +152,60 @@ func TestListTodos(t *testing.T) {
 		}
 		if !cmp.Equal(c.want, got) {
 			t.Errorf("%q == %q, WANT: %q", c.fileName, got, c.want)
+		}
+	}
+}
+
+func TestWriteTodoMap(t *testing.T) {
+	cases := []struct {
+		m             map[int]Todo
+		goldenResPath string
+	}{
+		{
+			map[int]Todo{
+				1: {Done: false, Subject: "first todo"},
+				2: {Done: true, Subject: "second todo"},
+				3: {Done: false, Subject: "another todo"},
+				4: {Done: true, Subject: "last todo"},
+			},
+			"write-test-1.golden",
+		},
+		{
+			map[int]Todo{
+				1: {
+					Done:         false,
+					Subject:      "first todo",
+					CreationDate: time.Date(2020, 12, 12, 0, 0, 0, 0, time.UTC)},
+				2: {
+					Done:           true,
+					Subject:        "completed todo with a +project",
+					CreationDate:   time.Date(2019, 12, 12, 0, 0, 0, 0, time.UTC),
+					CompletionDate: time.Date(2020, 12, 31, 0, 0, 0, 0, time.UTC)},
+				3: {
+					Done:    false,
+					Subject: "another todo"},
+				4: {
+					Done:    true,
+					Subject: "last todo"},
+			},
+			"write-test-2.golden",
+		},
+	}
+	for i, c := range cases {
+		if err := WriteTodoMap(c.m, "../testdata/write-test-"+strconv.Itoa(i+1)+".output"); err != nil {
+			t.Fatal(err)
+		}
+		want, err := ioutil.ReadFile("../testdata/write-test-" + strconv.Itoa(i+1) + ".golden")
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, err := ioutil.ReadFile("../testdata/write-test-" + strconv.Itoa(i+1) + ".output")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if !cmp.Equal(want, got) {
+			t.Fatal("WriteTodoMap compare error")
 		}
 	}
 }

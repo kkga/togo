@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/kkga/togo/txt"
 	"github.com/spf13/cobra"
 )
 
@@ -13,10 +12,11 @@ var cleanCmd = &cobra.Command{
 	Aliases: []string{"cl"},
 	Short:   "Move done todos to done.txt",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := txt.ArchiveTasks()
-		if err != nil {
-			fmt.Println(err)
-		}
+		fmt.Println("clean called")
+		// err := txt.ArchiveTasks()
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
 	},
 }
 

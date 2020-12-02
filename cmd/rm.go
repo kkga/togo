@@ -2,10 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 
-	"github.com/kkga/togo/txt"
 	"github.com/spf13/cobra"
 )
 
@@ -15,18 +12,19 @@ var rmCmd = &cobra.Command{
 	Aliases: []string{"remove"},
 	Short:   "Remove todo",
 	Run: func(cmd *cobra.Command, args []string) {
-		key, err := strconv.Atoi(args[0])
-		if err != nil {
-			fmt.Println("Cannot parse todo number")
-		}
+		fmt.Println("rm called")
+		// key, err := strconv.Atoi(args[0])
+		// if err != nil {
+		// 	fmt.Println("Cannot parse todo number")
+		// }
 
-		deletedTask, err := txt.DeleteTask(key)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		// deletedTask, err := txt.DeleteTask(key)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// 	os.Exit(1)
+		// }
 
-		fmt.Println("Removed:", deletedTask)
+		// fmt.Println("Removed:", deletedTask)
 	},
 }
 
