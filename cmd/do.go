@@ -10,9 +10,10 @@ import (
 )
 
 var doCmd = &cobra.Command{
-	Use:     "do [NUM]",
-	Aliases: []string{"d, done"},
+	Use:     "do [NUM...]",
 	Short:   "Mark todo as done",
+	Aliases: []string{"d, done"},
+	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		var keys []int
 		for _, arg := range args {

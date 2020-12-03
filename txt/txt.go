@@ -3,7 +3,6 @@ package txt
 import (
 	"bufio"
 	"errors"
-	"log"
 	"os"
 	"regexp"
 	"sort"
@@ -25,8 +24,8 @@ type Todo struct {
 	Tags           []string
 }
 
-// Complete marks the todo as complete or incomplete
-func (t *Todo) Complete() bool {
+// ToggleDone marks the todo as complete or incomplete
+func (t *Todo) ToggleDone() bool {
 	t.Done = !t.Done
 	return t.Done
 }
@@ -65,8 +64,8 @@ func LinesInFile(fileName string) ([]string, error) {
 	return result, nil
 }
 
-// GetTodoMap converts a todo.txt file into a map of Todos
-func GetTodoMap(fileName string) (map[int]Todo, error) {
+// TodoMap converts a todo.txt file into a map of Todos
+func TodoMap(fileName string) (map[int]Todo, error) {
 	m := make(map[int]Todo)
 	todoLines, err := LinesInFile(fileName)
 	if err != nil {
@@ -141,7 +140,7 @@ func FormatTodo(todo Todo) string {
 
 // ListTodos returns a map of formatted todo strings that match given queries
 func ListTodos(queries []string, fileName string) (map[int]string, error) {
-	m, err := GetTodoMap(fileName)
+	m, err := TodoMap(fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +182,7 @@ func WriteTodoMap(m map[int]Todo, fileName string) error {
 
 	f, err := os.Create(fileName)
 	if err != nil {
-		log.Fatalf("failed creating file: %s", err)
+		return err
 	}
 	defer f.Close()
 
@@ -192,7 +191,7 @@ func WriteTodoMap(m map[int]Todo, fileName string) error {
 		_, _ = datawriter.WriteString(todo + "\n")
 	}
 	if err := datawriter.Flush(); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	return nil
@@ -200,12 +199,12 @@ func WriteTodoMap(m map[int]Todo, fileName string) error {
 
 // CompleteTodo marks given todo number as complete and writes the update to file
 func CompleteTodo(key int) (Todo, error) {
-	todoMap, err := GetTodoMap("todo.txt")
+	todoMap, err := TodoMap("todo.txt")
 	if err != nil {
 		return Todo{}, err
 	}
 	if todo, ok := todoMap[key]; ok {
-		todo.Complete()
+		todo.ToggleDone()
 		if !todo.CreationDate.IsZero() {
 			switch todo.Done {
 			case true:
@@ -228,7 +227,7 @@ func CompleteTodo(key int) (Todo, error) {
 
 // AddTodo creates a new Todo from input and writes the updated todoMap to file
 func AddTodo(t string, fileName string) (Todo, error) {
-	todoMap, err := GetTodoMap(fileName)
+	todoMap, err := TodoMap(fileName)
 	if err != nil {
 		return Todo{}, err
 	}
@@ -246,7 +245,7 @@ func AddTodo(t string, fileName string) (Todo, error) {
 
 // DeleteTodo removes the given todo number from todoMap and writes back to file
 func DeleteTodo(key int) (Todo, error) {
-	todoMap, err := GetTodoMap("todo.txt")
+	todoMap, err := TodoMap("todo.txt")
 	if err != nil {
 		return Todo{}, err
 	}
@@ -269,7 +268,7 @@ func DeleteTodo(key int) (Todo, error) {
 func CleanTodos(fileName string) ([]Todo, error) {
 	removed := make([]Todo, 0)
 
-	todoMap, err := GetTodoMap(fileName)
+	todoMap, err := TodoMap(fileName)
 	if err != nil {
 		return nil, err
 	}

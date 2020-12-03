@@ -9,6 +9,35 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestTodoToggleDone(t *testing.T) {
+	tests := []struct {
+		name string
+		todo Todo
+		want Todo
+	}{
+		{
+			"toggle done",
+			Todo{Done: false, Subject: "undone"},
+			Todo{Done: true, Subject: "undone"},
+		},
+		{
+			"toggle undone",
+			Todo{Done: true, Subject: "done"},
+			Todo{Done: false, Subject: "done"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.todo.ToggleDone()
+			want := tt.want.Done
+
+			if got != want {
+				t.Errorf("GIVEN: %v, WANT: %v, GOT: %v", tt.todo, got, want)
+			}
+		})
+	}
+}
+
 func TestLinesInFile(t *testing.T) {
 	cases := []struct {
 		fileName string
@@ -38,64 +67,87 @@ func TestLinesInFile(t *testing.T) {
 	}
 }
 
-func TestTodoComplete(t *testing.T) {
-	cases := []struct {
-		todo Todo
-		want Todo
+func TestTodoMap(t *testing.T) {
+	tests := []struct {
+		fileName string
+		want     map[int]Todo
 	}{
 		{
-			Todo{Done: false, Subject: "my Todo"},
-			Todo{Done: true, Subject: "my Todo"},
+			"todo-small.txt",
+			map[int]Todo{
+				1: {Done: false, Subject: "first todo"},
+				2: {Done: false, Subject: "last todo"},
+			},
 		},
 		{
-			Todo{Done: true, Subject: "my Todo"},
-			Todo{Done: false, Subject: "my Todo"},
+			"todo.txt",
+			map[int]Todo{
+				1: {Subject: "first todo"},
+				2: {Subject: "todo with date", CreationDate: time.Date(2020, 11, 30, 0, 0, 0, 0, time.UTC)},
+				3: {Done: true, Subject: "completed todo with date", CompletionDate: time.Date(2020, 11, 30, 0, 0, 0, 0, time.UTC), CreationDate: time.Date(2019, 10, 12, 0, 0, 0, 0, time.UTC)},
+				4: {Subject: "last todo"},
+			},
 		},
 	}
-	for _, c := range cases {
-		todo := c.todo
-		todo.Complete()
-
-		if !cmp.Equal(c.want, todo) {
-			t.Errorf("GIVEN: %v, WANT: %v, GOT: %v", c.todo, c.want, todo)
-		}
+	for _, tt := range tests {
+		name := tt.fileName
+		t.Run(name, func(t *testing.T) {
+			got, err := TodoMap("../testdata/" + tt.fileName)
+			if err != nil {
+				t.Fatal("Can't get TodoMap:", err)
+			}
+			if !cmp.Equal(tt.want, got) {
+				t.Errorf("TodoMap mismatch (-want +got):\n%s", cmp.Diff(tt.want, got))
+			}
+		})
 	}
 }
 
 func TestParseTodo(t *testing.T) {
-	cases := []struct {
+	tests := []struct {
 		todoStr string
 		want    Todo
 	}{
-		{"some todo",
+		{
+			"some todo",
 			Todo{
 				Done:    false,
-				Subject: "some todo"},
+				Subject: "some todo",
+			},
 		},
-		{"x some completed todo",
+		{
+			"x some completed todo",
 			Todo{
 				Done:    true,
-				Subject: "some completed todo"},
+				Subject: "some completed todo",
+			},
 		},
-		{"2020-01-30 todo with creation date",
+		{
+			"2020-01-30 todo with creation date",
 			Todo{
 				Done:         false,
 				CreationDate: time.Date(2020, 01, 30, 0, 0, 0, 0, time.UTC),
-				Subject:      "todo with creation date"},
+				Subject:      "todo with creation date",
+			},
 		},
-		{"x 2020-05-05 2020-01-12 completed todo with dates",
+		{
+			"x 2020-05-05 2020-01-12 completed todo with dates",
 			Todo{
 				Done:           true,
 				CompletionDate: time.Date(2020, 05, 05, 0, 0, 0, 0, time.UTC),
 				CreationDate:   time.Date(2020, 01, 12, 0, 0, 0, 0, time.UTC),
-				Subject:        "completed todo with dates"}},
+				Subject:        "completed todo with dates",
+			},
+		},
 	}
 
-	for _, c := range cases {
-		got := ParseTodo(c.todoStr)
-		if !cmp.Equal(got, c.want) {
-			t.Errorf("WANT: %v, GOT: %v", c.want, got)
-		}
+	for _, tt := range tests {
+		t.Run(tt.todoStr, func(t *testing.T) {
+			got := ParseTodo(tt.todoStr)
+			if !cmp.Equal(tt.want, got) {
+				t.Errorf("%s", cmp.Diff(tt.want, got))
+			}
+		})
 	}
 }
 
@@ -158,8 +210,8 @@ func TestListTodos(t *testing.T) {
 
 func TestWriteTodoMap(t *testing.T) {
 	cases := []struct {
-		m             map[int]Todo
-		goldenResPath string
+		m              map[int]Todo
+		goldenFilePath string
 	}{
 		{
 			map[int]Todo{

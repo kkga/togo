@@ -10,9 +10,10 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:     "add",
+	Use:     "add [TODO]",
 	Short:   "Add todo",
 	Aliases: []string{"a"},
+	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		t := strings.Join(args, " ")
 		todo, err := txt.AddTodo(t, "todo.txt")
