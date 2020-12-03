@@ -2,7 +2,6 @@ package txt
 
 import (
 	"bufio"
-	"errors"
 	"os"
 	"regexp"
 	"sort"
@@ -195,107 +194,4 @@ func WriteTodoMap(m map[int]Todo, fileName string) error {
 	}
 
 	return nil
-}
-
-// CompleteTodo marks given todo number as complete and writes the update to file
-func CompleteTodo(key int) (Todo, error) {
-	todoMap, err := TodoMap("todo.txt")
-	if err != nil {
-		return Todo{}, err
-	}
-	if todo, ok := todoMap[key]; ok {
-		todo.ToggleDone()
-		if !todo.CreationDate.IsZero() {
-			switch todo.Done {
-			case true:
-				todo.CompletionDate = time.Now()
-			case false:
-				todo.CompletionDate = time.Time{}
-			}
-		}
-		todoMap[key] = todo
-	} else {
-		return Todo{}, errors.New("Non-existing todo number")
-	}
-
-	if err := WriteTodoMap(todoMap, "todo.txt"); err != nil {
-		return Todo{}, err
-	}
-
-	return todoMap[key], nil
-}
-
-// AddTodo creates a new Todo from input and writes the updated todoMap to file
-func AddTodo(t string, fileName string) (Todo, error) {
-	todoMap, err := TodoMap(fileName)
-	if err != nil {
-		return Todo{}, err
-	}
-
-	todo := ParseTodo(t)
-	todo.CreationDate = time.Now()
-	todoMap[len(todoMap)+1] = todo
-
-	if err := WriteTodoMap(todoMap, fileName); err != nil {
-		return Todo{}, err
-	}
-
-	return todo, nil
-}
-
-// DeleteTodo removes the given todo number from todoMap and writes back to file
-func DeleteTodo(key int) (Todo, error) {
-	todoMap, err := TodoMap("todo.txt")
-	if err != nil {
-		return Todo{}, err
-	}
-
-	deletedTodo := Todo{}
-
-	if todo, ok := todoMap[key]; ok {
-		deletedTodo = todo
-		delete(todoMap, key)
-	}
-
-	if err := WriteTodoMap(todoMap, "todo.txt"); err != nil {
-		return Todo{}, err
-	}
-
-	return deletedTodo, nil
-}
-
-// CleanTodos moves all completed todos from todo.txt to done.txt
-func CleanTodos(fileName string) ([]Todo, error) {
-	removed := make([]Todo, 0)
-
-	todoMap, err := TodoMap(fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	for k, todo := range todoMap {
-		if todo.Done {
-			delete(todoMap, k)
-			removed = append(removed, todo)
-		}
-	}
-
-	if err := WriteTodoMap(todoMap, fileName); err != nil {
-		return nil, err
-	}
-
-	doneFile, err := os.OpenFile("done.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return nil, err
-	}
-	defer doneFile.Close()
-
-	for _, todo := range removed {
-		todoStr := FormatTodo(todo)
-		if _, err := doneFile.WriteString(todoStr + "\n"); err != nil {
-			return nil, err
-		}
-	}
-
-	return removed, nil
 }

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/kkga/togo/txt"
@@ -10,21 +11,49 @@ import (
 
 // rmCmd represents the rm command
 var rmCmd = &cobra.Command{
-	Use:     "rm",
-	Aliases: []string{"remove"},
+	Use:     "rm [NUM...]",
 	Short:   "Remove todo",
+	Aliases: []string{"remove"},
+	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		key, err := strconv.Atoi(args[0])
-		if err != nil {
-			fmt.Println("Cannot parse todo number")
+		fileName := "todo.txt"
+
+		var keys []int
+		for _, arg := range args {
+			key, err := strconv.Atoi(arg)
+			if err != nil {
+				fmt.Println("Cannot parse todo number:", arg)
+				os.Exit(1)
+			}
+			keys = append(keys, key)
 		}
 
-		removedTodo, err := txt.DeleteTodo(key)
+		m, err := txt.TodoMap(fileName)
 		if err != nil {
-			fmt.Println("Something went wrong")
+			fmt.Println("Cannot read todo file:", err)
 		}
 
-		fmt.Println("Removed:", removedTodo.Subject)
+		var removed []txt.Todo
+		for _, k := range keys {
+			if todo, ok := m[k]; ok {
+				removed = append(removed, todo)
+				delete(m, k)
+			} else {
+				fmt.Println("Cannot find todo number:", k)
+			}
+		}
+
+		if err := txt.WriteTodoMap(m, fileName); err != nil {
+			fmt.Println("Cannot write todos to file:", err)
+			os.Exit(1)
+		}
+
+		if len(removed) > 0 {
+			fmt.Println("Removed:")
+			for _, todo := range removed {
+				fmt.Println("-", todo.Subject)
+			}
+		}
 	},
 }
 
