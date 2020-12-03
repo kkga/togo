@@ -29,21 +29,6 @@ func (t *Todo) ToggleDone() bool {
 	return t.Done
 }
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func contains(s []string, str string) bool {
-	for _, v := range s {
-		if v == str {
-			return true
-		}
-	}
-	return false
-}
-
 // LinesInFile scans the given fileName and returns a slice of strings for each line
 func LinesInFile(fileName string) ([]string, error) {
 	f, err := os.Open(fileName)
