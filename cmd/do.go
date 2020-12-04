@@ -57,9 +57,8 @@ var doCmd = &cobra.Command{
 		}
 
 		if len(completed) > 0 {
-			fmt.Println("Marked done:")
 			for _, todo := range completed {
-				fmt.Println("-", todo.Subject)
+				PrintTodo(0, todo)
 			}
 		}
 

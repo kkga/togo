@@ -49,47 +49,29 @@ var lsCmd = &cobra.Command{
 		sort.Ints(keys)
 
 		for _, k := range keys {
-			printTodo(k, todos[k])
+			PrintTodo(k, todos[k])
 		}
 
-		// for _, k := range keys {
-		// 	var todo string
-		// 	var status string
-		// 	var priority string
-
-		// 	if strings.HasPrefix(todos[k], "x ") {
-		// 		crossedOut := color.New(color.CrossedOut).SprintFunc()
-		// 		todo = strings.Replace(todos[k], "x ", "", 1)
-		// 		todo = crossedOut(todo)
-		// 		status = "x"
-		// 	} else {
-		// 		todo = todos[k]
-		// 		status = " "
-		// 	}
-		// 	if strings.HasPrefix(todos[k], "(A)") {
-		// 		bold := color.New(color.Bold).SprintFunc()
-		// 		priority = bold("(A)")
-
-		// 	}
-		// 	fmt.Println(fmt.Sprintf("%2d [%s] %s %s", k, status, priority, todo))
-		// }
-
-		// todoLines, _ := txt.LinesInFile(TodoFile)
-		// fmt.Println("------")
-		// fmt.Printf("%d/%d todos shown\n", len(todos), len(todoLines))
+		fmt.Println("-----")
+		fmt.Printf("%d/%d todos shown (%s)\n", len(todos), len(m), TodoFile)
 	},
 }
 
-func printTodo(key int, todo txt.Todo) {
+// PrintTodo colorizes and outputs the given Todo
+func PrintTodo(key int, todo txt.Todo) {
 	var result string
 
-	result += fmt.Sprintf("%2d ", key)
+	if key == 0 {
+		result += "-" + " "
+	} else {
+		result += fmt.Sprintf("%-2d", key)
+	}
 
 	if todo.Done {
-		color := color.New(color.FgGreen).SprintFunc()
+		color := color.New(color.FgGreen, color.Bold).SprintFunc()
 		result += color("[x]") + " "
 	} else {
-		color := color.New(color.FgWhite).SprintFunc()
+		color := color.New(color.Reset).SprintFunc()
 		result += color("[ ]") + " "
 	}
 
