@@ -123,6 +123,22 @@ func TestParseTodo(t *testing.T) {
 			},
 		},
 		{
+			"(A) todo with priority",
+			Todo{
+				Done:     false,
+				Priority: "A",
+				Subject:  "todo with priority",
+			},
+		},
+		{
+			"x (C) completed todo with priority",
+			Todo{
+				Done:     true,
+				Priority: "C",
+				Subject:  "completed todo with priority",
+			},
+		},
+		{
 			"2020-01-30 todo with creation date",
 			Todo{
 				Done:         false,
@@ -152,30 +168,56 @@ func TestParseTodo(t *testing.T) {
 }
 
 func TestFormatTodo(t *testing.T) {
-	cases := []struct {
+	tests := []struct {
 		todo Todo
 		want string
 	}{
 
-		{Todo{
-			Done:           true,
-			CompletionDate: time.Date(2020, 05, 05, 0, 0, 0, 0, time.UTC),
-			CreationDate:   time.Date(2020, 01, 12, 0, 0, 0, 0, time.UTC),
-			Subject:        "completed todo with dates"},
+		{
+			Todo{
+				Done:           true,
+				CompletionDate: time.Date(2020, 05, 05, 0, 0, 0, 0, time.UTC),
+				CreationDate:   time.Date(2020, 01, 12, 0, 0, 0, 0, time.UTC),
+				Subject:        "completed todo with dates",
+			},
 			"x 2020-05-05 2020-01-12 completed todo with dates",
 		},
-		{Todo{
-			Done:         false,
-			CreationDate: time.Date(2019, 12, 01, 0, 0, 0, 0, time.UTC),
-			Subject:      "todo with creation date"},
+		{
+			Todo{
+				Done:         false,
+				CreationDate: time.Date(2019, 12, 01, 0, 0, 0, 0, time.UTC),
+				Subject:      "todo with creation date",
+			},
 			"2019-12-01 todo with creation date",
 		},
+		{
+			Todo{
+				Done:         false,
+				Priority:     "A",
+				CreationDate: time.Date(2019, 12, 01, 0, 0, 0, 0, time.UTC),
+				Subject:      "todo with prio and creation date",
+			},
+			"(A) 2019-12-01 todo with prio and creation date",
+		},
+		{
+			Todo{
+				Done:           true,
+				Priority:       "C",
+				CompletionDate: time.Date(2020, 01, 01, 0, 0, 0, 0, time.UTC),
+				CreationDate:   time.Date(2019, 12, 01, 0, 0, 0, 0, time.UTC),
+				Subject:        "completed todo with prio and creation date",
+			},
+			"x (C) 2020-01-01 2019-12-01 completed todo with prio and creation date",
+		},
 	}
-	for _, c := range cases {
-		got := FormatTodo(c.todo)
-		if !cmp.Equal(c.want, got) {
-			t.Errorf("WANT: %s, GOT: %s", c.want, got)
-		}
+	for _, tt := range tests {
+		name := tt.todo.Subject
+		t.Run(name, func(t *testing.T) {
+			got := FormatTodo(tt.todo)
+			if !cmp.Equal(tt.want, got) {
+				t.Errorf("%s", cmp.Diff(tt.want, got))
+			}
+		})
 	}
 }
 

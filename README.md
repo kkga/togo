@@ -1,4 +1,11 @@
-todo.txt CLI app written in Go. Not very usable yet.
+togo is a CLI for managing your todo.txt file.
+
+It handles most of the todo.txt formatting work for you and makes it easy to
+filter, sort, complete and archive your todos.
+
+### todo.txt format
+
+TODO: describe the format
 
 ## Usage
 
@@ -20,9 +27,9 @@ Flags:
 Use "togo [command] --help" for more information about a command.
 ```
 
-## Examples
+## Usage Examples
 
-### Listing todos
+#### Listing todos
 
 ```
 > togo ls
@@ -43,7 +50,7 @@ Use "togo [command] --help" for more information about a command.
 2/5 todos shown
 ```
 
-### Adding todos
+#### Adding todos
 
 ```
 > togo add put some examples on github
@@ -62,7 +69,7 @@ Added: put some examples on github
 6/6 todos shown
 ```
 
-### Completing todos
+#### Completing todos
 
 ```
 > togo do 6
@@ -80,7 +87,7 @@ Marked done:
  6 [x] 2020-12-03 2020-12-03 put some examples on github
 ```
 
-### Cleaning done todos
+#### Cleaning done todos
 
 ```
 > togo cl
@@ -92,6 +99,38 @@ Archived:
 > cat done.txt
 x 2020-12-03 2020-12-01 build a todo.txt cli
 x 2020-12-03 2020-12-03 put some examples on github
+```
+
+## Configuration
+
+Upon launch, togo reads a file at `~/.config/togo/togo.toml` in home directory.
+
+An alternative way to specify a config file is through the `-c/--config` flag,
+e.g.:
+
+```
+$ togo -c "path/to/togo.toml"
+```
+
+### Configuration options
+
+```toml
+[global]
+# absolute path to the todo.txt file
+todo_file = "/home/kkga/notes/todo.txt"
+# if true, automatically prepend creation date to new todos in YYYY-MM-DD format
+prepend_date = true
+
+# [format]
+# checkbox = true
+# crossed_out = true
+#
+# [colors]
+# pri_a = "red"
+# pri_b = "red"
+# pri_c = "yellow"
+# project = "green bold"
+# context = "blue bold"
 ```
 
 ## TODO

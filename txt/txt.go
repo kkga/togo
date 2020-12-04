@@ -18,8 +18,8 @@ type Todo struct {
 	CompletionDate time.Time
 	CreationDate   time.Time
 	Subject        string
-	Project        string
-	Context        string
+	Projects       []string
+	Contexts       []string
 	Tags           []string
 }
 
@@ -68,11 +68,23 @@ func ParseTodo(todo string) Todo {
 	var subject string
 	var completionDate time.Time
 	var creationDate time.Time
+	var priority string
+	var projects []string
+	var contexts []string
 
 	// check if the task is done
 	if strings.HasPrefix(todo, "x ") {
 		done = true
 		todo = strings.Replace(todo, "x ", "", 1)
+	}
+
+	// parse priority
+	prioRe := regexp.MustCompile(`\([A-Z]\)`)
+	if priority = prioRe.FindString(todo); priority != "" {
+		// fmt.Println(priority)
+		todo = strings.Replace(todo, priority+" ", "", 1)
+		priority = strings.Replace(priority, "(", "", 1)
+		priority = strings.Replace(priority, ")", "", 1)
 	}
 
 	// parse dates
@@ -92,6 +104,23 @@ func ParseTodo(todo string) Todo {
 		creationDate = creatDate
 	}
 
+	// parse projects
+	// TODO: make this work with +my-project
+	projectRe := regexp.MustCompile(`\+\w+`)
+	if p := projectRe.FindAllString(todo, -1); len(p) > 0 {
+		for _, v := range p {
+			projects = append(projects, v)
+		}
+	}
+
+	// parse contexts
+	contextRe := regexp.MustCompile(`\@\w+`)
+	if c := contextRe.FindAllString(todo, -1); len(c) > 0 {
+		for _, v := range c {
+			contexts = append(contexts, v)
+		}
+	}
+
 	subject = todo
 
 	return Todo{
@@ -99,6 +128,9 @@ func ParseTodo(todo string) Todo {
 		Subject:        subject,
 		CompletionDate: completionDate,
 		CreationDate:   creationDate,
+		Priority:       priority,
+		Projects:       projects,
+		Contexts:       contexts,
 	}
 }
 
@@ -108,6 +140,9 @@ func FormatTodo(todo Todo) string {
 
 	if todo.Done {
 		s = append(s, "x")
+	}
+	if todo.Priority != "" {
+		s = append(s, "("+todo.Priority+")")
 	}
 	if !todo.CompletionDate.IsZero() {
 		s = append(s, todo.CompletionDate.Format(dateLayout))
