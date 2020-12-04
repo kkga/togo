@@ -15,10 +15,9 @@ var cleanCmd = &cobra.Command{
 	Short:   "Move done todos to done.txt",
 	Args:    cobra.MaximumNArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		fileName := "todo.txt"
 		doneFileName := "done.txt"
 
-		m, err := txt.TodoMap(fileName)
+		m, err := txt.TodoMap(TodoFile)
 		if err != nil {
 			fmt.Println("Cannot read todo file", err)
 		}
@@ -31,7 +30,7 @@ var cleanCmd = &cobra.Command{
 			}
 		}
 
-		if err := txt.WriteTodoMap(m, fileName); err != nil {
+		if err := txt.WriteTodoMap(m, TodoFile); err != nil {
 			fmt.Println("Cannot write todos to file:", err)
 		}
 
@@ -63,5 +62,5 @@ var cleanCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(cleanCmd)
+	rootCmd.AddCommand(cleanCmd)
 }

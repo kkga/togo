@@ -16,8 +16,6 @@ var rmCmd = &cobra.Command{
 	Aliases: []string{"remove"},
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fileName := "todo.txt"
-
 		var keys []int
 		for _, arg := range args {
 			key, err := strconv.Atoi(arg)
@@ -28,7 +26,7 @@ var rmCmd = &cobra.Command{
 			keys = append(keys, key)
 		}
 
-		m, err := txt.TodoMap(fileName)
+		m, err := txt.TodoMap(TodoFile)
 		if err != nil {
 			fmt.Println("Cannot read todo file:", err)
 		}
@@ -43,7 +41,7 @@ var rmCmd = &cobra.Command{
 			}
 		}
 
-		if err := txt.WriteTodoMap(m, fileName); err != nil {
+		if err := txt.WriteTodoMap(m, TodoFile); err != nil {
 			fmt.Println("Cannot write todos to file:", err)
 			os.Exit(1)
 		}
@@ -58,5 +56,5 @@ var rmCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(rmCmd)
+	rootCmd.AddCommand(rmCmd)
 }

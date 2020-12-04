@@ -17,7 +17,7 @@ var lsCmd = &cobra.Command{
 	Example: "togo ls\ntogo ls +myproject\ntogo ls myquery",
 	Aliases: []string{"l, list"},
 	Run: func(cmd *cobra.Command, args []string) {
-		todos, err := txt.ListTodos(args, "todo.txt")
+		todos, err := txt.ListTodos(args, TodoFile)
 		if err != nil {
 			fmt.Println("Failed to get tasks", err)
 			os.Exit(1)
@@ -47,13 +47,13 @@ var lsCmd = &cobra.Command{
 			fmt.Println(fmt.Sprintf("%2d [%s] %s", k, statusStr, todoStr))
 		}
 
-		todoLines, _ := txt.LinesInFile("todo.txt")
+		todoLines, _ := txt.LinesInFile(TodoFile)
 		fmt.Println("------")
 		fmt.Printf("%d/%d todos shown\n", len(todos), len(todoLines))
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(lsCmd)
+	rootCmd.AddCommand(lsCmd)
 	// lsCmd.Flags().BoolP("done", "d", false, "List done tasks from done.txt")
 }

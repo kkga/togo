@@ -16,20 +16,19 @@ var doCmd = &cobra.Command{
 	Aliases: []string{"d, done"},
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fileName := "todo.txt"
 		var keys []int
 		for _, arg := range args {
 			key, err := strconv.Atoi(arg)
 			if err != nil {
-				fmt.Println("Cannot parse todo number: ", arg)
+				fmt.Println("Cannot parse todo number:", arg)
 				os.Exit(1)
 			}
 			keys = append(keys, key)
 		}
 
-		m, err := txt.TodoMap(fileName)
+		m, err := txt.TodoMap(TodoFile)
 		if err != nil {
-			fmt.Println("Cannot read todo file:", fileName)
+			fmt.Println("Cannot read todo file:", TodoFile)
 		}
 
 		var completed []txt.Todo
@@ -52,7 +51,7 @@ var doCmd = &cobra.Command{
 			}
 		}
 
-		if err := txt.WriteTodoMap(m, fileName); err != nil {
+		if err := txt.WriteTodoMap(m, TodoFile); err != nil {
 			fmt.Println("Cannot write todos to file:", err)
 			os.Exit(1)
 		}
@@ -68,5 +67,5 @@ var doCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(doCmd)
+	rootCmd.AddCommand(doCmd)
 }

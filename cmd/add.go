@@ -8,6 +8,7 @@ import (
 
 	"github.com/kkga/togo/txt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var addCmd = &cobra.Command{
@@ -18,18 +19,20 @@ var addCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		todoStr := strings.Join(args, " ")
 
-		fileName := "todo.txt"
-		m, err := txt.TodoMap(fileName)
+		date := viper.GetBool("global.prepend_date")
+		m, err := txt.TodoMap(TodoFile)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
 		todo := txt.ParseTodo(todoStr)
-		todo.CreationDate = time.Now()
+		if date {
+			todo.CreationDate = time.Now()
+		}
 		m[len(m)+1] = todo
 
-		if err := txt.WriteTodoMap(m, fileName); err != nil {
+		if err := txt.WriteTodoMap(m, TodoFile); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -39,5 +42,5 @@ var addCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(addCmd)
+	rootCmd.AddCommand(addCmd)
 }
