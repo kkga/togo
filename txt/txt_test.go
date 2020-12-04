@@ -221,35 +221,6 @@ func TestFormatTodo(t *testing.T) {
 	}
 }
 
-func TestListTodos(t *testing.T) {
-	cases := []struct {
-		fileName string
-		want     map[int]string
-	}{
-		{"todo-small.txt",
-			map[int]string{
-				1: "first todo",
-				2: "last todo",
-			}},
-		{"todo.txt",
-			map[int]string{
-				1: "first todo",
-				2: "2020-11-30 todo with date",
-				3: "x 2020-11-30 2019-10-12 completed todo with date",
-				4: "last todo",
-			}},
-	}
-	for _, c := range cases {
-		got, err := ListTodos(make([]string, 0), "../testdata/"+c.fileName)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if !cmp.Equal(c.want, got) {
-			t.Errorf("%q == %q, WANT: %q", c.fileName, got, c.want)
-		}
-	}
-}
-
 func TestWriteTodoMap(t *testing.T) {
 	cases := []struct {
 		m              map[int]Todo

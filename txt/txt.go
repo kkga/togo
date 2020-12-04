@@ -134,7 +134,7 @@ func ParseTodo(todo string) Todo {
 	}
 }
 
-// FormatTodo converts a Todo struct into a formatted string for output
+// FormatTodo converts a Todo struct into a todo.txt string for writing
 func FormatTodo(todo Todo) string {
 	s := make([]string, 0)
 
@@ -155,32 +155,6 @@ func FormatTodo(todo Todo) string {
 	}
 
 	return strings.Join(s, " ")
-}
-
-// ListTodos returns a map of formatted todo strings that match given queries
-func ListTodos(queries []string, fileName string) (map[int]string, error) {
-	m, err := TodoMap(fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	todos := make(map[int]string)
-
-	for k, todo := range m {
-		if len(queries) > 0 {
-			for _, q := range queries {
-				_, exists := todos[k]
-				matches := strings.Contains(todo.Subject, q)
-				if !exists && matches {
-					todos[k] = FormatTodo(todo)
-				}
-			}
-		} else {
-			todos[k] = FormatTodo(todo)
-		}
-	}
-
-	return todos, nil
 }
 
 // WriteTodoMap writes a map of Todos into a formatted file
