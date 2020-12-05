@@ -37,7 +37,7 @@ var addCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Println("Added:")
+		fmt.Printf("Added (%s):\n", TodoFile)
 		PrintTodo(0, todo)
 	},
 }

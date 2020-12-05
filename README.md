@@ -135,6 +135,6 @@ prepend_date = true
 
 ## TODO
 
-- [ ] persistent `todo.txt` file path config (currently only reads `todo.txt`/`done.txt` in cwd)
+- [x] persistent `todo.txt` file path config (currently only reads `todo.txt`/`done.txt` in cwd)
 - [ ] priorities
-- [ ] sorting flags for `ls` command: by date/project/context
+- [x] sorting flags for `ls` command: by date/project/context

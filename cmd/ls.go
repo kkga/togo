@@ -9,9 +9,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/kkga/togo/txt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
-
-var sortOption string
 
 var lsCmd = &cobra.Command{
 	Use:     "ls [query...]",
@@ -51,8 +50,10 @@ var lsCmd = &cobra.Command{
 		sort.Ints(keys)
 		var listedKeys []int
 
-		switch sortOption {
-		case "order":
+		sorting := viper.GetString("global.sort")
+
+		switch sorting {
+		case "file":
 			for _, k := range keys {
 				PrintTodo(k, todos[k])
 			}
@@ -112,9 +113,9 @@ var lsCmd = &cobra.Command{
 			}
 		}
 
-		if sortOption != "order" && len(listedKeys) < len(todos) {
+		if sorting != "file" && len(listedKeys) < len(todos) {
 			color := color.New(color.Bold).SprintFunc()
-			fmt.Println(color("(" + "no " + sortOption + "):"))
+			fmt.Println(color("(" + "no " + sorting + "):"))
 			for _, k := range keys {
 				if !containsInt(listedKeys, k) {
 					PrintTodo(k, todos[k])
@@ -133,7 +134,7 @@ func PrintTodo(key int, todo txt.Todo) {
 	if key == 0 {
 		result += "-" + " "
 	} else {
-		result += fmt.Sprintf("%-2d", key)
+		result += fmt.Sprintf("%2d | ", key)
 	}
 
 	if todo.Done {
@@ -195,7 +196,8 @@ func PrintTodo(key int, todo txt.Todo) {
 
 func init() {
 	rootCmd.AddCommand(lsCmd)
-	lsCmd.Flags().StringVarP(&sortOption, "sort", "s", "order", "sort order, possible values: \"order\", \"project\", \"context\", \"prio\"")
+	lsCmd.Flags().StringP("sort", "s", "order", "sort order, possible values: \"file\", \"project\", \"context\", \"prio\"")
+	viper.BindPFlag("global.sort", lsCmd.Flags().Lookup("sort"))
 }
 
 func containsString(source []string, value string) bool {
