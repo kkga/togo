@@ -177,14 +177,14 @@ func PrintTodo(key int, todo txt.Todo) {
 	}
 
 	if len(todo.Projects) > 0 {
-		color := color.New(color.FgCyan).SprintFunc()
+		color := color.New(color.FgMagenta).SprintFunc()
 		for _, p := range todo.Projects {
 			result = strings.ReplaceAll(result, p, color(p))
 		}
 	}
 
 	if len(todo.Contexts) > 0 {
-		color := color.New(color.FgMagenta).SprintFunc()
+		color := color.New(color.FgCyan).SprintFunc()
 		for _, c := range todo.Contexts {
 			result = strings.ReplaceAll(result, c, color(c))
 		}
