@@ -274,3 +274,39 @@ func TestWriteTodoMap(t *testing.T) {
 		}
 	}
 }
+
+func TestProjects(t *testing.T) {
+	tests := []struct {
+		m    map[int]Todo
+		want []string
+	}{
+		{
+			map[int]Todo{
+				1: {Done: false, Subject: "first +project todo", Projects: []string{"project"}},
+				2: {Done: false, Subject: "last todo +project", Projects: []string{"project"}},
+			},
+			[]string{"project"},
+		},
+		{
+			map[int]Todo{
+				1: {Done: false, Subject: "first +hey todo", Projects: []string{"hey"}},
+				2: {Done: false, Subject: "last todo +ho", Projects: []string{"ho"}},
+				3: {Done: false, Subject: "last todo +other +ho", Projects: []string{"other", "ho"}},
+				4: {Done: false, Subject: "last todo +hey", Projects: []string{"hey"}},
+				5: {Done: false, Subject: "last todo +wassup +hey", Projects: []string{"wassup", "hey"}},
+			},
+			[]string{"hey", "ho", "other", "wassup"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run("", func(t *testing.T) {
+			got, err := Projects(tt.m)
+			if err != nil {
+				t.Fatal("Can't get projects:", err)
+			}
+			if !cmp.Equal(tt.want, got) {
+				t.Errorf("Projects mismatch:\n%s", cmp.Diff(tt.want, got))
+			}
+		})
+	}
+}

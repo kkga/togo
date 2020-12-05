@@ -11,11 +11,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var sortOption string
+
 var lsCmd = &cobra.Command{
 	Use:     "ls [query...]",
 	Short:   "List todos",
 	Example: "togo ls\ntogo ls +myproject\ntogo ls myquery",
-	Aliases: []string{"l, list"},
+	Aliases: []string{"l", "list"},
 	Run: func(cmd *cobra.Command, args []string) {
 
 		m, err := txt.TodoMap(TodoFile)
@@ -47,11 +49,78 @@ var lsCmd = &cobra.Command{
 			keys = append(keys, k)
 		}
 		sort.Ints(keys)
+		var listedKeys []int
 
-		for _, k := range keys {
-			PrintTodo(k, todos[k])
+		switch sortOption {
+		case "order":
+			for _, k := range keys {
+				PrintTodo(k, todos[k])
+			}
+		case "project":
+			projects, err := txt.Projects(todos)
+			sort.Strings(projects)
+
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			for _, p := range projects {
+				color := color.New(color.Bold).SprintFunc()
+				fmt.Println(color(p) + ":")
+				for _, k := range keys {
+					if containsString(todos[k].Projects, p) {
+						PrintTodo(k, todos[k])
+						listedKeys = append(listedKeys, k)
+					}
+				}
+			}
+		case "context":
+			contexts, err := txt.Contexts(todos)
+			sort.Strings(contexts)
+
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			for _, c := range contexts {
+				color := color.New(color.Bold).SprintFunc()
+				fmt.Println(color(c) + ":")
+				for _, k := range keys {
+					if containsString(todos[k].Contexts, c) {
+						PrintTodo(k, todos[k])
+						listedKeys = append(listedKeys, k)
+					}
+				}
+			}
+		case "prio":
+			priorities, err := txt.Priorities(todos)
+			sort.Strings(priorities)
+
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			for _, p := range priorities {
+				color := color.New(color.Bold).SprintFunc()
+				fmt.Println(color("("+p+")") + ":")
+				for _, k := range keys {
+					if todos[k].Priority == p {
+						PrintTodo(k, todos[k])
+						listedKeys = append(listedKeys, k)
+					}
+				}
+			}
 		}
 
+		if sortOption != "order" && len(listedKeys) < len(todos) {
+			color := color.New(color.Bold).SprintFunc()
+			fmt.Println(color("(" + "no " + sortOption + "):"))
+			for _, k := range keys {
+				if !containsInt(listedKeys, k) {
+					PrintTodo(k, todos[k])
+				}
+			}
+		}
 		fmt.Println("-----")
 		fmt.Printf("%d/%d todos shown (%s)\n", len(todos), len(m), TodoFile)
 	},
@@ -68,7 +137,7 @@ func PrintTodo(key int, todo txt.Todo) {
 	}
 
 	if todo.Done {
-		color := color.New(color.FgGreen, color.Bold).SprintFunc()
+		color := color.New(color.Bold).SprintFunc()
 		result += color("[x]") + " "
 	} else {
 		color := color.New(color.Reset).SprintFunc()
@@ -76,8 +145,20 @@ func PrintTodo(key int, todo txt.Todo) {
 	}
 
 	if todo.Priority != "" {
-		color := color.New(color.FgHiRed, color.Bold).SprintFunc()
-		result += color("("+todo.Priority+")") + " "
+		switch todo.Priority {
+		case "A":
+			color := color.New(color.FgRed, color.Bold).SprintFunc()
+			result += color("("+todo.Priority+")") + " "
+		case "B":
+			color := color.New(color.FgYellow, color.Bold).SprintFunc()
+			result += color("("+todo.Priority+")") + " "
+		case "C":
+			color := color.New(color.FgGreen, color.Bold).SprintFunc()
+			result += color("("+todo.Priority+")") + " "
+		default:
+			color := color.New(color.FgGreen, color.Bold).SprintFunc()
+			result += color("("+todo.Priority+")") + " "
+		}
 	}
 
 	if !todo.CompletionDate.IsZero() {
@@ -114,5 +195,23 @@ func PrintTodo(key int, todo txt.Todo) {
 
 func init() {
 	rootCmd.AddCommand(lsCmd)
-	// lsCmd.Flags().BoolP("done", "d", false, "List done tasks from done.txt")
+	lsCmd.Flags().StringVarP(&sortOption, "sort", "s", "order", "sort order, possible values: \"order\", \"project\", \"context\", \"prio\"")
+}
+
+func containsString(source []string, value string) bool {
+	for _, item := range source {
+		if item == value {
+			return true
+		}
+	}
+	return false
+}
+
+func containsInt(source []int, value int) bool {
+	for _, item := range source {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }

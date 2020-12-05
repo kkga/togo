@@ -3,6 +3,7 @@ package txt
 import (
 	"bufio"
 	"os"
+
 	"regexp"
 	"sort"
 	"strings"
@@ -60,6 +61,62 @@ func TodoMap(fileName string) (map[int]Todo, error) {
 	}
 
 	return m, nil
+}
+
+// Projects returns a slice of all project strings in a given map of Todos
+// TODO turn TodoMap into a type with methods for this and contexts
+func Projects(m map[int]Todo) (projects []string, err error) {
+	keys := make([]int, 0)
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	for _, k := range keys {
+		for _, p := range m[k].Projects {
+			if contains(projects, p) {
+				continue
+			}
+			projects = append(projects, p)
+		}
+	}
+	return
+}
+
+// Contexts returns a slice of all context strings in a given map of Todos
+func Contexts(m map[int]Todo) (contexts []string, err error) {
+	keys := make([]int, 0)
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	for _, k := range keys {
+		for _, p := range m[k].Contexts {
+			if contains(contexts, p) {
+				continue
+			}
+			contexts = append(contexts, p)
+		}
+	}
+	return
+}
+
+// Priorities returns a slice of all priority strings in a given map of Todos
+func Priorities(m map[int]Todo) (priorities []string, err error) {
+	keys := make([]int, 0)
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	for _, k := range keys {
+		p := m[k].Priority
+		if p != "" && !contains(priorities, p) {
+			priorities = append(priorities, p)
+		}
+	}
+	return
 }
 
 // ParseTodo converts a string into a Todo struct
@@ -188,4 +245,13 @@ func WriteTodoMap(m map[int]Todo, fileName string) error {
 	}
 
 	return nil
+}
+
+func contains(source []string, value string) bool {
+	for _, item := range source {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }
