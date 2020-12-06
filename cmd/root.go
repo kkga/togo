@@ -15,8 +15,6 @@ var ConfigFile string
 // TodoFile defines the path to todo.txt
 var TodoFile string
 
-var localTodo bool
-
 var rootCmd = &cobra.Command{
 	Use:   "togo [command]",
 	Short: "togo is a CLI for todo.txt",
@@ -38,8 +36,8 @@ func er(msg interface{}) {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVarP(&ConfigFile, "config", "c", "", "path to config file")
-	rootCmd.PersistentFlags().BoolVarP(&localTodo, "local", "l", false, "use todo.txt in current directory")
-
+	rootCmd.PersistentFlags().StringVarP(&TodoFile, "file", "f", "todo.txt", "path to todo.txt file")
+	viper.BindPFlag("file", rootCmd.PersistentFlags().Lookup("file"))
 }
 
 func initConfig() {
@@ -65,10 +63,5 @@ func initConfig() {
 		}
 	}
 
-	switch localTodo {
-	case true:
-		TodoFile = "todo.txt"
-	case false:
-		TodoFile = viper.GetString("global.todo_file")
-	}
+	TodoFile = viper.GetString("file")
 }

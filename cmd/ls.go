@@ -50,7 +50,7 @@ var lsCmd = &cobra.Command{
 		sort.Ints(keys)
 		var listedKeys []int
 
-		sorting := viper.GetString("global.sort")
+		sorting := viper.GetString("sort")
 
 		switch sorting {
 		case "file":
@@ -122,7 +122,7 @@ var lsCmd = &cobra.Command{
 				}
 			}
 		}
-		fmt.Println("-----")
+		fmt.Println("------")
 		fmt.Printf("%d/%d todos shown (%s)\n", len(todos), len(m), TodoFile)
 	},
 }
@@ -134,7 +134,7 @@ func PrintTodo(key int, todo txt.Todo) {
 	if key == 0 {
 		result += "-" + " "
 	} else {
-		result += fmt.Sprintf("%2d | ", key)
+		result += fmt.Sprintf("%2d ", key)
 	}
 
 	if todo.Done {
@@ -197,7 +197,7 @@ func PrintTodo(key int, todo txt.Todo) {
 func init() {
 	rootCmd.AddCommand(lsCmd)
 	lsCmd.Flags().StringP("sort", "s", "order", "sort order, possible values: \"file\", \"project\", \"context\", \"prio\"")
-	viper.BindPFlag("global.sort", lsCmd.Flags().Lookup("sort"))
+	viper.BindPFlag("sort", lsCmd.Flags().Lookup("sort"))
 }
 
 func containsString(source []string, value string) bool {

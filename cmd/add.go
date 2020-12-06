@@ -19,15 +19,15 @@ var addCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		todoStr := strings.Join(args, " ")
 
-		date := viper.GetBool("global.prepend_date")
 		m, err := txt.TodoMap(TodoFile)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
+		addDate := viper.GetBool("prepend_date")
 		todo := txt.ParseTodo(todoStr)
-		if date {
+		if addDate {
 			todo.CreationDate = time.Now()
 		}
 		m[len(m)+1] = todo
