@@ -14,13 +14,21 @@ var editCmd = &cobra.Command{
 	Use:     "edit [NUM]",
 	Short:   "Open todo.txt in editor",
 	Aliases: []string{"e"},
+	Args:    cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		editor := exec.Command("vim", TodoFile, "+"+args[0])
-		editor.Stdin = strings.NewReader("")
-		editor.Stdout = os.Stdout
-		editor.Stderr = os.Stderr
+		editor := os.Getenv("EDITOR")
+		if editor == "" {
+			editor = "vim"
+		}
+		edit := exec.Command(editor, TodoFile)
+		if len(args) > 0 {
+			edit = exec.Command(editor, TodoFile, "+"+args[0])
+		}
+		edit.Stdin = strings.NewReader("")
+		edit.Stdout = os.Stdout
+		edit.Stderr = os.Stderr
 
-		err := editor.Run()
+		err := edit.Run()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
