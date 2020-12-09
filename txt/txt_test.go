@@ -147,6 +147,14 @@ func TestParseTodo(t *testing.T) {
 			},
 		},
 		{
+			"2020-01-30 todo with creation date and tag due:2021-02-20",
+			Todo{
+				Done:         false,
+				CreationDate: time.Date(2020, 01, 30, 0, 0, 0, 0, time.UTC),
+				Subject:      "todo with creation date and tag due:2021-02-20",
+			},
+		},
+		{
 			"x 2020-05-05 2020-01-12 completed todo with dates",
 			Todo{
 				Done:           true,
