@@ -28,7 +28,7 @@ func TestLinesInFile(t *testing.T) {
 			}},
 	}
 	for _, c := range cases {
-		got, err := LinesInFile("../testdata/" + c.fileName)
+		got, err := LinesInFile("testdata/" + c.fileName)
 		if err != nil {
 			t.Fatal("Cannot read file")
 		}
@@ -63,7 +63,7 @@ func TestTodoMap(t *testing.T) {
 	for _, tt := range tests {
 		name := tt.fileName
 		t.Run(name, func(t *testing.T) {
-			got, err := TodoMap("../testdata/" + tt.fileName)
+			got, err := TodoMap("testdata/" + tt.fileName)
 			if err != nil {
 				t.Fatal("Can't get TodoMap:", err)
 			}
@@ -110,14 +110,14 @@ func TestWriteTodoMap(t *testing.T) {
 		},
 	}
 	for i, c := range cases {
-		if err := WriteTodoMap(c.m, "../testdata/write-test-"+strconv.Itoa(i+1)+".output"); err != nil {
+		if err := WriteTodoMap(c.m, "testdata/write-test-"+strconv.Itoa(i+1)+".output"); err != nil {
 			t.Fatal(err)
 		}
-		want, err := ioutil.ReadFile("../testdata/write-test-" + strconv.Itoa(i+1) + ".golden")
+		want, err := ioutil.ReadFile("testdata/write-test-" + strconv.Itoa(i+1) + ".golden")
 		if err != nil {
 			t.Fatal(err)
 		}
-		got, err := ioutil.ReadFile("../testdata/write-test-" + strconv.Itoa(i+1) + ".output")
+		got, err := ioutil.ReadFile("testdata/write-test-" + strconv.Itoa(i+1) + ".output")
 		if err != nil {
 			t.Fatal(err)
 		}
