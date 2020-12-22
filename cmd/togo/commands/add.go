@@ -1,4 +1,4 @@
-package cmd
+package commands
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kkga/togo/txt"
+	"github.com/kkga/togo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -19,20 +19,20 @@ var addCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		todoStr := strings.Join(args, " ")
 
-		m, err := txt.TodoMap(TodoFile)
+		m, err := togo.TodoMap(TodoFile)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
 		addDate := viper.GetBool("prepend_date")
-		todo := txt.ParseTodo(todoStr)
+		todo := togo.ParseTodo(todoStr)
 		if addDate {
 			todo.CreationDate = time.Now()
 		}
 		m[len(m)+1] = todo
 
-		if err := txt.WriteTodoMap(m, TodoFile); err != nil {
+		if err := togo.WriteTodoMap(m, TodoFile); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}

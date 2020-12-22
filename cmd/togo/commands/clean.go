@@ -1,10 +1,10 @@
-package cmd
+package commands
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/kkga/togo/txt"
+	"github.com/kkga/togo"
 	"github.com/spf13/cobra"
 )
 
@@ -17,12 +17,12 @@ var cleanCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		doneFileName := "done.txt"
 
-		m, err := txt.TodoMap(TodoFile)
+		m, err := togo.TodoMap(TodoFile)
 		if err != nil {
 			fmt.Println("Cannot read todo file", err)
 		}
 
-		var completed []txt.Todo
+		var completed []togo.Todo
 		for k, todo := range m {
 			if todo.Done {
 				completed = append(completed, todo)
@@ -30,14 +30,14 @@ var cleanCmd = &cobra.Command{
 			}
 		}
 
-		if err := txt.WriteTodoMap(m, TodoFile); err != nil {
+		if err := togo.WriteTodoMap(m, TodoFile); err != nil {
 			fmt.Println("Cannot write todos to file:", err)
 		}
 
 		if len(completed) > 0 {
 			fmt.Println("Archived:")
 			for _, todo := range completed {
-				fmt.Println("-", txt.FormatTodo(todo))
+				fmt.Println("-", togo.FormatTodo(todo))
 			}
 		} else {
 			fmt.Println("No completed todos")
@@ -51,7 +51,7 @@ var cleanCmd = &cobra.Command{
 		defer doneFile.Close()
 
 		for _, todo := range completed {
-			todoStr := txt.FormatTodo(todo)
+			todoStr := togo.FormatTodo(todo)
 			if _, err := doneFile.WriteString(todoStr + "\n"); err != nil {
 				fmt.Println("Cannot write to done.txt:", err)
 				os.Exit(1)

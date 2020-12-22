@@ -1,4 +1,4 @@
-package txt
+package togo
 
 import (
 	"bufio"

@@ -115,26 +115,8 @@ $ togo -c "path/to/togo.toml"
 ### Configuration options
 
 ```toml
-[global]
 # absolute path to the todo.txt file
-todo_file = "/home/kkga/notes/todo.txt"
-# if true, automatically prepend creation date to new todos in YYYY-MM-DD format
+file = "/home/kkga/notes/todo.txt"
+# prepend creation date to new todos
 prepend_date = true
-
-# [format]
-# checkbox = true
-# crossed_out = true
-#
-# [colors]
-# pri_a = "red"
-# pri_b = "red"
-# pri_c = "yellow"
-# project = "green bold"
-# context = "blue bold"
 ```
-
-## TODO
-
-- [x] persistent `todo.txt` file path config (currently only reads `todo.txt`/`done.txt` in cwd)
-- [ ] priorities
-- [x] sorting flags for `ls` command: by date/project/context

@@ -1,4 +1,4 @@
-package cmd
+package commands
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kkga/togo/txt"
+	"github.com/kkga/togo"
 	"github.com/spf13/cobra"
 )
 
@@ -26,12 +26,12 @@ var doCmd = &cobra.Command{
 			keys = append(keys, key)
 		}
 
-		m, err := txt.TodoMap(TodoFile)
+		m, err := togo.TodoMap(TodoFile)
 		if err != nil {
 			fmt.Println("Cannot read todo file:", TodoFile)
 		}
 
-		var completed []txt.Todo
+		var completed []togo.Todo
 		for _, k := range keys {
 			if todo, ok := m[k]; ok {
 				todo.ToggleDone()
@@ -51,7 +51,7 @@ var doCmd = &cobra.Command{
 			}
 		}
 
-		if err := txt.WriteTodoMap(m, TodoFile); err != nil {
+		if err := togo.WriteTodoMap(m, TodoFile); err != nil {
 			fmt.Println("Cannot write todos to file:", err)
 			os.Exit(1)
 		}

@@ -1,4 +1,4 @@
-package cmd
+package commands
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/kkga/togo/txt"
+	"github.com/kkga/togo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -18,13 +18,13 @@ var lsCmd = &cobra.Command{
 	Example: "togo ls\ntogo ls +myproject\ntogo ls myquery",
 	Aliases: []string{"l", "list"},
 	Run: func(cmd *cobra.Command, args []string) {
-		m, err := txt.TodoMap(TodoFile)
+		m, err := togo.TodoMap(TodoFile)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		matchingTodos := make(map[int]txt.Todo)
+		matchingTodos := make(map[int]togo.Todo)
 		for k, todo := range m {
 			if len(args) > 0 {
 				for _, arg := range args {
@@ -55,7 +55,7 @@ var lsCmd = &cobra.Command{
 				PrintTodo(k, matchingTodos[k])
 			}
 		case "project":
-			projects, err := txt.Projects(matchingTodos)
+			projects, err := togo.Projects(matchingTodos)
 			sort.Strings(projects)
 
 			if err != nil {
@@ -73,7 +73,7 @@ var lsCmd = &cobra.Command{
 				}
 			}
 		case "context":
-			contexts, err := txt.Contexts(matchingTodos)
+			contexts, err := togo.Contexts(matchingTodos)
 			sort.Strings(contexts)
 
 			if err != nil {
@@ -91,7 +91,7 @@ var lsCmd = &cobra.Command{
 				}
 			}
 		case "prio":
-			priorities, err := txt.Priorities(matchingTodos)
+			priorities, err := togo.Priorities(matchingTodos)
 			sort.Strings(priorities)
 
 			if err != nil {
@@ -125,7 +125,7 @@ var lsCmd = &cobra.Command{
 }
 
 // PrintTodo colorizes and outputs the given Todo
-func PrintTodo(key int, todo txt.Todo) {
+func PrintTodo(key int, todo togo.Todo) {
 	var result string
 
 	if key == 0 {
