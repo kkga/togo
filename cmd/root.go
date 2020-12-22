@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -64,4 +65,11 @@ func initConfig() {
 	}
 
 	TodoFile = viper.GetString("file")
+	if strings.HasPrefix(TodoFile, "~") {
+		home, err := homedir.Dir()
+		if err != nil {
+			er(err)
+		}
+		TodoFile = strings.Replace(TodoFile, "~", home, 1)
+	}
 }
