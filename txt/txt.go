@@ -4,31 +4,10 @@ import (
 	"bufio"
 	"os"
 
-	"regexp"
 	"sort"
-	"strings"
-	"time"
 )
 
 const dateLayout = "2006-01-02"
-
-// Todo represents a single todo item
-type Todo struct {
-	Done           bool
-	Priority       string
-	CompletionDate time.Time
-	CreationDate   time.Time
-	Subject        string
-	Projects       []string
-	Contexts       []string
-	Tags           []string
-}
-
-// ToggleDone marks the todo as complete or incomplete
-func (t *Todo) ToggleDone() bool {
-	t.Done = !t.Done
-	return t.Done
-}
 
 // LinesInFile scans the given fileName and returns a slice of strings for each line
 func LinesInFile(fileName string) ([]string, error) {
@@ -117,101 +96,6 @@ func Priorities(m map[int]Todo) (priorities []string, err error) {
 		}
 	}
 	return
-}
-
-// ParseTodo converts a string into a Todo struct
-func ParseTodo(todo string) Todo {
-	var done bool
-	var subject string
-	var completionDate time.Time
-	var creationDate time.Time
-	var priority string
-	var projects []string
-	var contexts []string
-
-	// check if the task is done
-	if strings.HasPrefix(todo, "x ") {
-		done = true
-		todo = strings.Replace(todo, "x ", "", 1)
-	}
-
-	// parse priority
-	prioRe := regexp.MustCompile(`\([A-Z]\)`)
-	if priority = prioRe.FindString(todo); priority != "" {
-		// fmt.Println(priority)
-		todo = strings.Replace(todo, priority+" ", "", 1)
-		priority = strings.Replace(priority, "(", "", 1)
-		priority = strings.Replace(priority, ")", "", 1)
-	}
-
-	// parse dates
-	dateRe := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
-	dates := dateRe.FindAllString(todo, -1)
-
-	if len(dates) == 1 {
-		todo = strings.Replace(todo, dates[0]+" ", "", 1)
-		date, _ := time.Parse(dateLayout, dates[0])
-		creationDate = date
-	} else if len(dates) > 1 {
-		todo = strings.Replace(todo, dates[0]+" ", "", 1)
-		compDate, _ := time.Parse(dateLayout, dates[0])
-		completionDate = compDate
-		todo = strings.Replace(todo, dates[1]+" ", "", 1)
-		creatDate, _ := time.Parse(dateLayout, dates[1])
-		creationDate = creatDate
-	}
-
-	// parse projects
-	// TODO: make this work with +my-project
-	projectRe := regexp.MustCompile(`\+\w+`)
-	if p := projectRe.FindAllString(todo, -1); len(p) > 0 {
-		for _, v := range p {
-			projects = append(projects, v)
-		}
-	}
-
-	// parse contexts
-	contextRe := regexp.MustCompile(`\@\w+`)
-	if c := contextRe.FindAllString(todo, -1); len(c) > 0 {
-		for _, v := range c {
-			contexts = append(contexts, v)
-		}
-	}
-
-	subject = todo
-
-	return Todo{
-		Done:           done,
-		Subject:        subject,
-		CompletionDate: completionDate,
-		CreationDate:   creationDate,
-		Priority:       priority,
-		Projects:       projects,
-		Contexts:       contexts,
-	}
-}
-
-// FormatTodo converts a Todo struct into a todo.txt string for writing
-func FormatTodo(todo Todo) string {
-	s := make([]string, 0)
-
-	if todo.Done {
-		s = append(s, "x")
-	}
-	if todo.Priority != "" {
-		s = append(s, "("+todo.Priority+")")
-	}
-	if !todo.CompletionDate.IsZero() {
-		s = append(s, todo.CompletionDate.Format(dateLayout))
-	}
-	if !todo.CreationDate.IsZero() {
-		s = append(s, todo.CreationDate.Format(dateLayout))
-	}
-	if todo.Subject != "" {
-		s = append(s, todo.Subject)
-	}
-
-	return strings.Join(s, " ")
 }
 
 // WriteTodoMap writes a map of Todos into a formatted file
