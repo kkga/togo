@@ -18,47 +18,44 @@ var lsCmd = &cobra.Command{
 	Example: "togo ls\ntogo ls +myproject\ntogo ls myquery",
 	Aliases: []string{"l", "list"},
 	Run: func(cmd *cobra.Command, args []string) {
-
 		m, err := txt.TodoMap(TodoFile)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		todos := make(map[int]txt.Todo)
-
+		matchingTodos := make(map[int]txt.Todo)
 		for k, todo := range m {
 			if len(args) > 0 {
 				for _, arg := range args {
-					_, exists := todos[k]
+					_, exists := matchingTodos[k]
 					matches := strings.Contains(todo.Subject, arg)
 					if !exists && matches {
-						todos[k] = todo
+						matchingTodos[k] = todo
 					}
 				}
 			} else {
-				todos[k] = todo
+				matchingTodos[k] = todo
 			}
 		}
 
 		// iteration over map happens in random order, so we store the order
 		// in a separate slice
 		var keys []int
-		for k := range todos {
+		for k := range matchingTodos {
 			keys = append(keys, k)
 		}
 		sort.Ints(keys)
 		var listedKeys []int
 
 		sorting := viper.GetString("sort")
-
 		switch sorting {
 		case "file":
 			for _, k := range keys {
-				PrintTodo(k, todos[k])
+				PrintTodo(k, matchingTodos[k])
 			}
 		case "project":
-			projects, err := txt.Projects(todos)
+			projects, err := txt.Projects(matchingTodos)
 			sort.Strings(projects)
 
 			if err != nil {
@@ -69,14 +66,14 @@ var lsCmd = &cobra.Command{
 				color := color.New(color.Bold).SprintFunc()
 				fmt.Println(color(p) + ":")
 				for _, k := range keys {
-					if containsString(todos[k].Projects, p) {
-						PrintTodo(k, todos[k])
+					if containsString(matchingTodos[k].Projects, p) {
+						PrintTodo(k, matchingTodos[k])
 						listedKeys = append(listedKeys, k)
 					}
 				}
 			}
 		case "context":
-			contexts, err := txt.Contexts(todos)
+			contexts, err := txt.Contexts(matchingTodos)
 			sort.Strings(contexts)
 
 			if err != nil {
@@ -87,14 +84,14 @@ var lsCmd = &cobra.Command{
 				color := color.New(color.Bold).SprintFunc()
 				fmt.Println(color(c) + ":")
 				for _, k := range keys {
-					if containsString(todos[k].Contexts, c) {
-						PrintTodo(k, todos[k])
+					if containsString(matchingTodos[k].Contexts, c) {
+						PrintTodo(k, matchingTodos[k])
 						listedKeys = append(listedKeys, k)
 					}
 				}
 			}
 		case "prio":
-			priorities, err := txt.Priorities(todos)
+			priorities, err := txt.Priorities(matchingTodos)
 			sort.Strings(priorities)
 
 			if err != nil {
@@ -105,25 +102,25 @@ var lsCmd = &cobra.Command{
 				color := color.New(color.Bold).SprintFunc()
 				fmt.Println(color("("+p+")") + ":")
 				for _, k := range keys {
-					if todos[k].Priority == p {
-						PrintTodo(k, todos[k])
+					if matchingTodos[k].Priority == p {
+						PrintTodo(k, matchingTodos[k])
 						listedKeys = append(listedKeys, k)
 					}
 				}
 			}
 		}
 
-		if sorting != "file" && len(listedKeys) < len(todos) {
+		if sorting != "file" && len(listedKeys) < len(matchingTodos) {
 			color := color.New(color.Bold).SprintFunc()
 			fmt.Println(color("(" + "no " + sorting + "):"))
 			for _, k := range keys {
 				if !containsInt(listedKeys, k) {
-					PrintTodo(k, todos[k])
+					PrintTodo(k, matchingTodos[k])
 				}
 			}
 		}
 		fmt.Println("------")
-		fmt.Printf("%d/%d todos shown (%s)\n", len(todos), len(m), TodoFile)
+		fmt.Printf("%d/%d todos shown (%s)\n", len(matchingTodos), len(m), TodoFile)
 	},
 }
 
@@ -194,12 +191,6 @@ func PrintTodo(key int, todo txt.Todo) {
 	fmt.Println(result)
 }
 
-func init() {
-	rootCmd.AddCommand(lsCmd)
-	lsCmd.Flags().StringP("sort", "s", "order", "sort order, possible values: \"file\", \"project\", \"context\", \"prio\"")
-	viper.BindPFlag("sort", lsCmd.Flags().Lookup("sort"))
-}
-
 func containsString(source []string, value string) bool {
 	for _, item := range source {
 		if item == value {
@@ -216,4 +207,10 @@ func containsInt(source []int, value int) bool {
 		}
 	}
 	return false
+}
+
+func init() {
+	rootCmd.AddCommand(lsCmd)
+	lsCmd.Flags().StringP("sort", "s", "file", "sort order, possible values: \"file\", \"project\", \"context\", \"prio\"")
+	viper.BindPFlag("sort", lsCmd.Flags().Lookup("sort"))
 }
